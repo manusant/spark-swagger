@@ -106,7 +106,12 @@ There are two ways to bind endpoins:
 				    .collect(Collectors.toSet())
 		       )
 ```
- 
+Another resolver implementation can be a simple collection of endpoint instances
+```java
+   Service spark = Service.ignite().port(55555);
+   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+	    .endpoints(() ->Arrays.asList(new HammerRestApi(),new ShieldRestApi()))
+```
 # Configuration
 
 ### How to configure
