@@ -1,14 +1,14 @@
 # SparkSwagger
 Live Documentation for Spark application using Swagger spec.
 
+*Motivation*
+
+Create and maintain documentation for APIs is a tedious part of application development. Developing in Spark Framework is not an exception. Its even worse since the current Swagger platform (https://swagger.io/) doesn´t have support for Spark (http://sparkjava.com/). To contrast these approaches, taking advantage of existing solutions, we'll provide a non-oficial suport of Swagger in a Spark application.
+
 Besides Swagger spec generation in JSON and YAML formats, this extension uses two open-source libraries in order to 
 provide a beautiful documentation interface for any spark application.
 
 <img src="/doc/SparkSwaggerFlow.png" width="100%">
-
-*Motivation*
-
-Create and maintain documentation for APIs is a tedious part of application development. Developing in Spark Framework is not an exception. Its even worse since the current Swagger platform (https://swagger.io/) doesn´t have support for Spark (http://sparkjava.com/). To contrast these approaches, taking advantage of existing solutions, we'll provide a non-oficial suport of Swagger in a Spark application.
 
 *Used Libraries*:
  - Swagger UI - is a collection of HTML, Javascript, and CSS assets that dynamically generate beautiful documentation from a Swagger-compliant API (https://github.com/swagger-api/swagger-ui)
