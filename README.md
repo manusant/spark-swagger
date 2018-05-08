@@ -6,7 +6,7 @@ provide a beautiful documentation interface for any spark application.
 
 <img src="/doc/SparkSwaggerFlow.png" width="100%">
 
-*Motivation*
+*Motivation*:
 Create and maintain documentation for APIs is a tedious part of application development. Developing in Spark Framework is not an exception. Its even worse since the current Swagger platform (https://swagger.io/) doesn´t have support for Spark (http://sparkjava.com/). To contrast these approaches, taking advantage of existing solutions, we'll provide a non-oficial suport of Swagger in a Spark application.
 
 *Used Libraries*:
