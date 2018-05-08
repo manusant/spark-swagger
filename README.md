@@ -136,3 +136,17 @@ spark-swagger {
   }
 }
 ```
+# Usage
+To use the extension you need to wrap the *Spark* Service instance into a *SparkSwagger* instance. All methods provided by *Spark* remains but new ones was added in order to provide a more modular api.
+
+## Ignition
+Start Spark and wrap it with SparkSwagger using configurations under "resources/spark-swagger.conf"
+```java
+   Service spark = Service.ignite().port(55555);
+   SparkSwagger.of(spark)
+```
+Start Spark and wrap it with SparkSwagger using configurations under provided path
+```java
+   Service spark = Service.ignite().port(55555);
+   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+```
