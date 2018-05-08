@@ -4,7 +4,7 @@ Live Documentation for Spark application using Swagger spec.
 Besides Swagger spec generation in JSON and YAML formats, this extension uses two open-source libraries in order to 
 provide a beautiful documentation interface for any spark application.
 
-[[https://github.com/Coriant/SparkSwagger/blob/master/doc/SparkSwaggerFlow.png|alt=octocat]]
+<img src="/doc/SparkSwaggerFlow.png" width="100%">
 
 *Used Libraries*:
  - Swagger UI - is a collection of HTML, Javascript, and CSS assets that dynamically generate beautiful documentation from a Swagger-compliant API (https://github.com/swagger-api/swagger-ui)
