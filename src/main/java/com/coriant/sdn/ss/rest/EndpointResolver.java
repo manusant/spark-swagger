@@ -8,5 +8,5 @@ import java.util.Set;
 @FunctionalInterface
 public interface EndpointResolver {
 
-    Set<Endpoint> modules();
+    Set<Endpoint> endpoints();
 }

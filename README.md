@@ -1,12 +1,18 @@
 # SparkSwagger
-Spark support for Swagger
+Spark support for Swagger. 
 
+Besides Swagger spec generation in JSON and YAML formats, this extension uses two open-source libraries in order to 
+provide a beautiful documentation interface for any spark application.
+
+*Used Libraries*:
+ - Swagger UI - is a collection of HTML, Javascript, and CSS assets that dynamically generate beautiful documentation from a Swagger-compliant API (https://github.com/swagger-api/swagger-ui)
+ - Swagger UI Themes - is a collection of themes to spice up those default Swagger Docs, ready to be dropped right into any project that needs a new look for your API docs (http://meostrander.com/swagger-ui-themes/).
+ 
 # Configuration
 
 ### How to configure
 
 SparkSwagger accepts configuration parameters from a configuration file named *spark-swagger.conf* that can be placed at *''src/main/resources/''* or another specified directory
-
 
 ### Parameters
 

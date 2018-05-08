@@ -134,7 +134,7 @@ public class SparkSwagger {
 
     public SparkSwagger endpoints(final EndpointResolver resolver) {
         Optional.ofNullable(resolver).orElseThrow(() -> new IllegalStateException("API Endpoint Resolver cannot be null"));
-        resolver.modules().forEach(this::endpoint);
+        resolver.endpoints().forEach(this::endpoint);
         return this;
     }
 
