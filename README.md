@@ -1,5 +1,5 @@
 # SparkSwagger
-Spark support for Swagger. 
+Live Documentation for Spark application using Swagger spec.
 
 Besides Swagger spec generation in JSON and YAML formats, this extension uses two open-source libraries in order to 
 provide a beautiful documentation interface for any spark application.
@@ -7,6 +7,20 @@ provide a beautiful documentation interface for any spark application.
 *Used Libraries*:
  - Swagger UI - is a collection of HTML, Javascript, and CSS assets that dynamically generate beautiful documentation from a Swagger-compliant API (https://github.com/swagger-api/swagger-ui)
  - Swagger UI Themes - is a collection of themes to spice up those default Swagger Docs, ready to be dropped right into any project that needs a new look for your API docs (http://meostrander.com/swagger-ui-themes/).
+
+### Add to your project
+#Gradle
+```groovy
+  compile 'com.coriant.sdn.ss:spark-swagger:1.0.0.40'
+```
+#Maven
+```xml
+   <dependency>
+      <groupId>com.coriant.sdn.ss</groupId>
+      <artifactId>spark-swagger</artifactId>
+      <version>1.0.0.40</version>
+   </dependency>
+```
  
 # Configuration
 
@@ -109,3 +123,10 @@ spark-swagger {
   }
 }
 ```
+
+# Tips
+1 - The generated Swagger definitions can be accessed via HTTP directly from runnig Spark-Swagger application. To do that you need to submit a GET **http://hostname:port/doc.yaml** for the *YAML* format and GET **http://hostname:port/doc.json** for the *JSON* format.
+
+2 - The exported Swagger definitions can be imported into Swagger editor (https://swagger.io/swagger-editor/) where you can Generate Server and Client implementations for your *API* in more than 50 programing languages and frameworks.
+
+3 - The generated documentation is served directly from Spark server and cand be accessed from **http://hostname:port/** or **http://hostname:port/index.html**.
