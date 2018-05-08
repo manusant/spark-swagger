@@ -194,3 +194,17 @@ An Interface class named **Endpoint** was introduced in order to facilitate Endp
     }
 }
 ```
+There two methods to bind endpoins:
+1 - Via *SparkSwagger.endpoint()* method (Example above)
+2 - Via an endpoints resolver using *SparkSwagger.endpoints()* method. An endpoint resolver is anything that can supply endpoint instances. The code below shows a *Guice* (https://github.com/google/guice) impelentation for a resolver.
+```java
+   Service spark = Service.ignite().port(55555);
+   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+	    .endpoints(() ->
+			    ThorModule.getInjector()
+				    .findBindingsByType(TypeLiteral.get(Endpoint.class))
+				    .stream()
+				    .map(binding -> binding.getProvider().get())
+				    .collect(Collectors.toSet())
+		       )
+```
