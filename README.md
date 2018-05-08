@@ -172,7 +172,7 @@ Parameter Name | Description
 `showCommonExtensions` | `Boolean=false`. Controls the display of extensions (`pattern`, `maxLength`, `minLength`, `maximum`, `minimum`) fields and values for Parameters.
 `tagsSorter` | `Function=(a => a)`. Apply a sort to the tag list of each API. It can be 'alpha' (sort by paths alphanumerically) or a function (see [Array.prototype.sort()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) to learn how to write a sort function). Two tag name strings are passed to the sorter for each pass. Default is the order determined by Swagger-UI.
 
-##### Example
+##### Configuration Example
 
 ```conf
 spark-swagger {
@@ -223,3 +223,6 @@ spark-swagger {
   }
 }
 ```
+
+# UI Example
+<img src="/doc/UiExample.PNG" width="100%">
