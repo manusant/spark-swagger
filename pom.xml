@@ -51,10 +51,6 @@
 
         <!-- jacoco api version -->
         <jacoco.api.version>0.7.6.201602180812</jacoco.api.version>
-
-        <swagger-ui>3.14.0</swagger-ui>
-        <upstream.url>https://github.com/swagger-api/swagger-ui/archive/v${swagger-ui}.zip</upstream.url>
-        <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
     </properties>
 
     <distributionManagement>
