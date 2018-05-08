@@ -9,11 +9,11 @@ provide a beautiful documentation interface for any spark application.
  - Swagger UI Themes - is a collection of themes to spice up those default Swagger Docs, ready to be dropped right into any project that needs a new look for your API docs (http://meostrander.com/swagger-ui-themes/).
 
 ### Tips
-1 - The generated Swagger definitions can be accessed via HTTP directly from runnig Spark-Swagger application. To do that you need to submit a GET **http://hostname:port/doc.yaml** for the *YAML* format and GET **http://hostname:port/doc.json** for the *JSON* format.
+1 - Generated Swagger definitions can be accessed via HTTP directly from runnig Spark-Swagger application. To do that you need to submit a GET **http://hostname:port/doc.yaml** for the *YAML* format and GET **http://hostname:port/doc.json** for the *JSON* format.
 
-2 - The exported Swagger definitions can be imported into Swagger editor (https://swagger.io/swagger-editor/) where you can Generate Server and Client implementations for your *API* in more than 50 programing languages and frameworks.
+2 - Exported Swagger definitions can be imported into Swagger editor (https://swagger.io/swagger-editor/) where you can Generate Server and Client implementations for your *API* in more than 50 programing languages and frameworks.
 
-3 - The generated documentation is served directly from Spark server and cand be accessed from **http://hostname:port/** or **http://hostname:port/index.html**.
+3 - Generated documentation is served directly from Spark server and cand be accessed from **http://hostname:port/** or **http://hostname:port/index.html**.
 
 ### Add to your project
 Gradle
