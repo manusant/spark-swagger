@@ -34,6 +34,78 @@ Maven
       <version>1.0.0.40</version>
    </dependency>
 ```
+# Usage
+To use the extension you need to wrap the *Spark* Service instance into a *SparkSwagger* instance. All methods provided by *Spark* remains but new ones was added in order to provide a more modular api.
+
+## Ignition
+Start Spark and wrap it with SparkSwagger using configurations under "resources/spark-swagger.conf"
+```java
+   Service spark = Service.ignite().port(55555);
+   SparkSwagger.of(spark)
+```
+Start Spark and wrap it with SparkSwagger using configurations under provided path
+```java
+   Service spark = Service.ignite().port(55555);
+   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+```
+## Endpoints Binding
+An Interface class named **Endpoint** was introduced in order to facilitate Endpoints modularization. Code below is an Endpoint implementation example.
+```java
+   public class HammerRestApi implements Endpoint {
+
+    private static final String NAME_SPACE = "/hammer";
+
+    @Override
+    public void bind(final SparkSwagger restApi) {
+
+        restApi.endpoint(endpointPath(NAME_SPACE)
+                .withDescription("Hammer REST API exposing all Thor utilities "), (q, a) -> LOGGER.info("Received request for Hammer Rest API"))
+
+                .get(path("/export")
+                        .withDescription("Gets the whole Network")
+                        .withResponseType(Network.class), new GsonRoute() {
+                    @Override
+                    public Object handleAndTransform(Request request, Response response) {
+                        return ok(response, getNetwork());
+                    }
+                })
+
+                .post(path("/backup")
+                        .withDescription("Trigger Network Backup")
+                        .withRequestType(BackupNetworkRequest.class)
+                        .withGenericResponse(), new TypedGsonRoute<BackupNetworkRequest, Object>() {
+
+                    @Override
+                    public Object handleAndTransform(BackupNetworkRequest body, Request request, Response response) {
+			return badRequest(response, "Backup Name required in order to backup Network Data");
+                    }
+                })
+
+                .delete(path("/")
+                        .withDescription("Clear Thor network resources")
+                        .withGenericResponse(), new GsonRoute() {
+                    @Override
+                    public Object handleAndTransform(Request request, Response response) {
+                        return ok(response, "Thor Store successfully cleared");
+                    }
+                })
+    }
+}
+```
+There are two ways to bind endpoins:
+1 - Via **SparkSwagger.endpoint()** method (Example above)
+2 - Via an endpoints resolver using **SparkSwagger.endpoints()** method. An endpoint resolver is anything that can supply endpoint instances. The code below shows a *Guice* (https://github.com/google/guice) impelentation for a resolver.
+```java
+   Service spark = Service.ignite().port(55555);
+   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+	    .endpoints(() ->
+			    ThorModule.getInjector()
+				    .findBindingsByType(TypeLiteral.get(Endpoint.class))
+				    .stream()
+				    .map(binding -> binding.getProvider().get())
+				    .collect(Collectors.toSet())
+		       )
+```
  
 # Configuration
 
@@ -135,76 +207,4 @@ spark-swagger {
     }
   }
 }
-```
-# Usage
-To use the extension you need to wrap the *Spark* Service instance into a *SparkSwagger* instance. All methods provided by *Spark* remains but new ones was added in order to provide a more modular api.
-
-## Ignition
-Start Spark and wrap it with SparkSwagger using configurations under "resources/spark-swagger.conf"
-```java
-   Service spark = Service.ignite().port(55555);
-   SparkSwagger.of(spark)
-```
-Start Spark and wrap it with SparkSwagger using configurations under provided path
-```java
-   Service spark = Service.ignite().port(55555);
-   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
-```
-## Endpoints Binding
-An Interface class named **Endpoint** was introduced in order to facilitate Endpoints modularization. Code below is an Endpoint implementation example.
-```java
-   public class HammerRestApi implements Endpoint {
-
-    private static final String NAME_SPACE = "/hammer";
-
-    @Override
-    public void bind(final SparkSwagger restApi) {
-
-        restApi.endpoint(endpointPath(NAME_SPACE)
-                .withDescription("Hammer REST API exposing all Thor utilities "), (q, a) -> LOGGER.info("Received request for Hammer Rest API"))
-
-                .get(path("/export")
-                        .withDescription("Gets the whole Network")
-                        .withResponseType(Network.class), new GsonRoute() {
-                    @Override
-                    public Object handleAndTransform(Request request, Response response) {
-                        return ok(response, getNetwork());
-                    }
-                })
-
-                .post(path("/backup")
-                        .withDescription("Trigger Network Backup")
-                        .withRequestType(BackupNetworkRequest.class)
-                        .withGenericResponse(), new TypedGsonRoute<BackupNetworkRequest, Object>() {
-
-                    @Override
-                    public Object handleAndTransform(BackupNetworkRequest body, Request request, Response response) {
-			return badRequest(response, "Backup Name required in order to backup Network Data");
-                    }
-                })
-
-                .delete(path("/")
-                        .withDescription("Clear Thor network resources")
-                        .withGenericResponse(), new GsonRoute() {
-                    @Override
-                    public Object handleAndTransform(Request request, Response response) {
-                        return ok(response, "Thor Store successfully cleared");
-                    }
-                })
-    }
-}
-```
-There are two ways to bind endpoins:
-1 - Via **SparkSwagger.endpoint()** method (Example above)
-2 - Via an endpoints resolver using **SparkSwagger.endpoints()** method. An endpoint resolver is anything that can supply endpoint instances. The code below shows a *Guice* (https://github.com/google/guice) impelentation for a resolver.
-```java
-   Service spark = Service.ignite().port(55555);
-   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
-	    .endpoints(() ->
-			    ThorModule.getInjector()
-				    .findBindingsByType(TypeLiteral.get(Endpoint.class))
-				    .stream()
-				    .map(binding -> binding.getProvider().get())
-				    .collect(Collectors.toSet())
-		       )
 ```
