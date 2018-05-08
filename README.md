@@ -13,7 +13,7 @@ provide a beautiful documentation interface for any spark application.
 
 2 - Exported Swagger definitions can be imported into Swagger editor (https://swagger.io/swagger-editor/) where you can Generate Server and Client implementations for your *API* in more than 50 programing languages and frameworks.
 
-3 - Generated documentation is served directly from Spark server and cand be accessed from **http://hostname:port/** or **http://hostname:port/index.html**.
+3 - Generated documentation is served directly from Spark server and can be accessed from **http://hostname:port/** or **http://hostname:port/index.html**.
 
 ### Add to your project
 Gradle
