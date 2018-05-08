@@ -9,11 +9,11 @@ provide a beautiful documentation interface for any spark application.
  - Swagger UI Themes - is a collection of themes to spice up those default Swagger Docs, ready to be dropped right into any project that needs a new look for your API docs (http://meostrander.com/swagger-ui-themes/).
 
 ### Add to your project
-#Gradle
+Gradle
 ```groovy
   compile 'com.coriant.sdn.ss:spark-swagger:1.0.0.40'
 ```
-#Maven
+Maven
 ```xml
    <dependency>
       <groupId>com.coriant.sdn.ss</groupId>
