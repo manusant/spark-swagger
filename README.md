@@ -168,7 +168,6 @@ An Interface class named **Endpoint** was introduced in order to facilitate Endp
                         .withResponseType(Network.class), new GsonRoute() {
                     @Override
                     public Object handleAndTransform(Request request, Response response) {
-						// Your code
                         return ok(response, getNetwork());
                     }
                 })
@@ -180,8 +179,7 @@ An Interface class named **Endpoint** was introduced in order to facilitate Endp
 
                     @Override
                     public Object handleAndTransform(BackupNetworkRequest body, Request request, Response response) {
-						// Your code
-						return badRequest(response, "Backup Name required in order to backup Network Data");
+			return badRequest(response, "Backup Name required in order to backup Network Data");
                     }
                 })
 
@@ -190,7 +188,6 @@ An Interface class named **Endpoint** was introduced in order to facilitate Endp
                         .withGenericResponse(), new GsonRoute() {
                     @Override
                     public Object handleAndTransform(Request request, Response response) {
-						// Your code
                         return ok(response, "Thor Store successfully cleared");
                     }
                 })
