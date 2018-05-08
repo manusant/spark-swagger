@@ -1,5 +1,5 @@
 # SparkSwagger
-Live Documentation for Spark application using Swagger spec.
+Live Documentation for Spark applications using Swagger spec.
 
 *Motivation*
 
