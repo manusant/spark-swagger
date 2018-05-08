@@ -115,7 +115,7 @@ Another resolver implementation can be a simple collection of endpoint instances
 	    .endpoints(() ->Arrays.asList(new HammerRestApi(),new ShieldRestApi()))
 ```
 ## DOC Generation
-To generate the Swagger Spec and UI you need to explicitly call **SparkSwagger.generateDoc()** method. Once you do that, the UI and spec will be generated and published to a "swagger-ui" folder under the temporary directory and the directory is mapped to be served by Spark as static resouces.
+To generate the Swagger Spec and UI you need to explicitly call **SparkSwagger.generateDoc()** method. Once you do that, the UI and spec will be generated and published to a "swagger-ui" folder under the temporary directory and then the directory is mapped to be served by Spark as static resouces.
 ```java
    Service spark = Service.ignite().port(55555);
    SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
