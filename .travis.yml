@@ -8,9 +8,18 @@ cache:
 
 install: travis_wait 30 mvn install
 
+## Using packageCloud
+#deploy:
+#  provider: script
+#  script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy"
+#  skip_cleanup: true
+#  on:
+#    tags: true
+
+# Using Nexus
 deploy:
   provider: script
-  script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy"
+  script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy -P sign,build-extras"
   skip_cleanup: true
   on:
     tags: true
