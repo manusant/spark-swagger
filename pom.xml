@@ -27,10 +27,10 @@
     </licenses>
 
     <scm>
-        <url>https://git.intra.coriant.com/projects/SDNIM/repos/spark-swagger/browse</url>
-        <connection>scm:git:ssh://git@git.intra.coriant.com:7999/sdnim/spark-swagger.git</connection>
-        <developerConnection>scm:git:ssh://git@git.intra.coriant.com:7999/sdnim/spark-swagger.git</developerConnection>
-        <tag>spark-swagger-1.0.0.9</tag>
+        <url>https://github.com/Coriant/SparkSwagger</url>
+        <connection>scm:git:ssh://git@github.com:Coriant/SparkSwagger.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:Coriant/SparkSwagger.git</developerConnection>
+        <tag>spark-swagger-1.0.0.40</tag>
     </scm>
 
     <properties>
@@ -54,14 +54,16 @@
     </properties>
 
     <distributionManagement>
-        <repository>
-            <id>CORIANT Releases</id>
-            <url>http://nexus-lis.intra.coriant.com/nexus/content/repositories/releases/</url>
-        </repository>
         <snapshotRepository>
-            <id>CORIANT Snapshots</id>
-            <url>http://nexus-lis.intra.coriant.com/nexus/content/repositories/snapshots/</url>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus snapshot repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Sonatype Nexus release repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
     </distributionManagement>
 
     <dependencies>
