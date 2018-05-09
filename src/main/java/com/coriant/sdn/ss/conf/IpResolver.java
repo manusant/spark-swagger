@@ -13,12 +13,12 @@ public class IpResolver {
         try {
             return Collections.list(NetworkInterface.getNetworkInterfaces())
                     .stream()
+                    .filter(networkInterface -> networkInterface.getName() != null && (networkInterface.getName().equals("eth0") || networkInterface.getName().equals("wlan0")))
                     .flatMap(networkInterface -> Collections.list(networkInterface.getInetAddresses()).stream())
-                    .filter(inetAddress -> inetAddress.getHostAddress() != null && !inetAddress.getHostAddress().equals("127.0.0.1") && !inetAddress.getHostAddress().equals("0:0:0:0:0:0:0:1"))
-                    .map(InetAddress::getHostAddress)
                     .findFirst()
+                    .map(InetAddress::getHostAddress)
                     .orElseGet(() -> "localhost");
-        }catch (Exception e){
+        } catch (Exception e) {
             return "localhost";
         }
     }

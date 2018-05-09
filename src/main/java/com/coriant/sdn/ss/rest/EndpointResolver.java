@@ -1,6 +1,6 @@
 package com.coriant.sdn.ss.rest;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * @author manusant
@@ -8,5 +8,5 @@ import java.util.Set;
 @FunctionalInterface
 public interface EndpointResolver {
 
-    Set<Endpoint> endpoints();
+    Collection<Endpoint> endpoints();
 }
