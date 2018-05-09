@@ -27,15 +27,15 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/Coriant/SparkSwagger</url>
-        <connection>scm:git:ssh://git@github.com:Coriant/SparkSwagger.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:Coriant/SparkSwagger.git</developerConnection>
+        <url>https://github.com/manusant/SparkSwagger</url>
+        <connection>scm:git:ssh://git@github.com:manusant/SparkSwagger.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:manusant/SparkSwagger.git</developerConnection>
         <tag>spark-swagger-1.0.0.40</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/Coriant/SparkSwagger/issues</url>
+        <url>https://github.com/manusant/SparkSwagger/issues</url>
     </issueManagement>
 
     <properties>
