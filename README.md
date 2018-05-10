@@ -127,7 +127,6 @@ Two metadata descriptors are provided. **EndpointDescriptor** to describe docume
                 .withDescription("Hammer REST API exposing all Thor utilities "), (q, a) -> LOGGER.info("Received request for Hammer Rest API"))
 			// endpoint methods
                 .get(...)
-
                 .post(...);
 ```
 - *MethodDescriptor* example:
