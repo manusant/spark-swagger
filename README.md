@@ -125,7 +125,7 @@ Two metadata descriptors are provided. **EndpointDescriptor** to describe docume
                 .withExternalDoc(ExternalDocs.newBuilder().withDescription("Find out more").withUrl("https://goo.gl/eNUixh").build()) 
                 // Endpoint Description
                 .withDescription("Hammer REST API exposing all Thor utilities "), (q, a) -> LOGGER.info("Received request for Hammer Rest API"))
-		// endpoint methods
+			// endpoint methods
                 .get(...)
 
                 .post(...);
