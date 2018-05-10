@@ -51,7 +51,7 @@ Start Spark and wrap it with SparkSwagger using configurations under provided pa
 ## Endpoints Binding
 An Interface class named **Endpoint** was introduced in order to facilitate Endpoints modularization. Code below is an Endpoint implementation example.
 ```java
-   public class HammerRestApi implements Endpoint {
+   public class HammerEndpoint implements Endpoint {
 
     private static final String NAME_SPACE = "/hammer";
 
@@ -112,10 +112,45 @@ Another resolver implementation can be a simple collection of endpoint instances
 ```java
    Service spark = Service.ignite().port(55555);
    SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
-	    .endpoints(() ->Arrays.asList(new HammerRestApi(),new ShieldRestApi()))
+	    .endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
 ```
 ## Metadata Specification
-TODO
+Two metadata descriptors are provided. **EndpointDescriptor** to describe documentation for and endpoint and **MethodDescriptor** to describe a specific method of an endpoint.
+ - *EndpointDescriptor* example:
+ ```java
+    restApi.endpoint(EndpointDescriptor.Builder.newBuilder()
+                // Namespace path
+                .withPath(NAME_SPACE)
+                // External Doc
+                .withExternalDoc(ExternalDocs.newBuilder().withDescription("Find out more").withUrl("https://goo.gl/eNUixh").build()) 
+                // Endpoint Description
+                .withDescription("Hammer REST API exposing all Thor utilities "), (q, a) -> LOGGER.info("Received request for Hammer Rest API"))
+		// endpoint methods
+                .get(...)
+
+                .post(...);
+```
+- *MethodDescriptor* example:
+```java
+   restApi.endpoint(endpointPath(NAME_SPACE), (q, a) -> LOGGER.info("Received request for Hammer Rest API"))
+                // endpoint methods
+                .get(MethodDescriptor.Builder.newBuilder()
+                        // Method path
+                        .withPath("export/:example1/:example2/:example3")
+                        // Method description
+                        .withDescription("Clear Thor network resources")
+                        // Path params specifications. If param type is String you don´t need to specify it
+                        .withPathParam().withName("example2").withObject(CardType.class).and()
+                        .withPathParam().withName("example3").withCollectionOf(NeType.class).and()
+                        // Specify response type
+                        .withGenericResponse(), new GsonRoute() {
+                    @Override
+                    public Object handleAndTransform(Request request, Response response) {
+                        storeWriter.clear();
+                        return ok(response, "Thor Store successfully cleared");
+                    }
+                })
+```
 ## DOC Generation
 To generate the Swagger Spec and UI you need to explicitly call **SparkSwagger.generateDoc()** method. Once you do that, the UI and spec will be generated and published to a "swagger-ui" folder under the temporary directory and then the directory is mapped to be served by Spark as static resouces.
 ```java
