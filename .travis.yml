@@ -1,26 +1,22 @@
-sudo: false
 language: java
-services:
-- docker
+env:
+  global:
+    - secure: "the base64 string from when you encrypted OSSRH_JIRA_USERNAME"
+    - # ^^ OSSRH_JIRA_USERNAME
+    - secure: "the base64 string from when you encrypted OSSRH_JIRA_PASSWORD"
+    - # ^^ OSSRH_JIRA_PASSWORD
+    - secure: "the base64 string from when you encrypted GPG_KEY_NAME"
+    - # ^^ GPG_KEY_NAME
+    - secure: "the base64 string from when you encrypted GPG_PASSPHRASE"
+    - # ^^ GPG_PASSPHRASE
+
+install: mvn install -P !build-extras -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+script: mvn test -P !build-extras -B
+
 cache:
   directories:
-  - "$HOME/.cache"
+    - ~/.m2/repository
 
-install: travis_wait 30 mvn install
-
-## Using packageCloud
-#deploy:
-#  provider: script
-#  script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy"
-#  skip_cleanup: true
-#  on:
-#    tags: true
-
-# Using Nexus
-deploy:
-  provider: script
-  #script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy -P sign,build-extras"
-  script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy -P build-extras"
-  skip_cleanup: true
-  on:
-    tags: true
+after_success:
+  #- ./cd/before-deploy.sh
+  - ./cd/deploy.sh
