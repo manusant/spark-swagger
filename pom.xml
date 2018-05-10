@@ -6,6 +6,10 @@
     <version>1.0.0.42</version>
     <packaging>jar</packaging>
 
+    <name>SparkSwagger</name>
+    <description>Spark (http://sparkjava.com/) support for Swagger (https://swagger.io/)</description>
+    <url>https://github.com/manusant/SparkSwagger</url>
+
     <prerequisites>
         <maven>3.0.4</maven>
     </prerequisites>
@@ -17,14 +21,6 @@
             <email>ney.br.santos@gmail.com</email>
         </developer>
     </developers>
-
-    <licenses>
-        <license>
-            <name>Apache 2.0</name>
-            <url>https://github.com/swagger-api/swagger-ui</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
 
     <scm>
         <url>https://github.com/manusant/SparkSwagger</url>
