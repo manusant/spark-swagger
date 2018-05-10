@@ -146,11 +146,11 @@ Two metadata descriptors are provided. **EndpointDescriptor** to describe docume
 		 .withQueryParam().withName("shieldPower").withDescription("Specify the power of the shield").and()
 		// Specify response type
 		.withGenericResponse(), new GsonRoute() {
-	    @Override
-	    public Object handleAndTransform(Request request, Response response) {
-	    
-		return ok(response, "Thor Store successfully cleared");
-	    }
+		    @Override
+		    public Object handleAndTransform(Request request, Response response) {
+
+			return ok(response, "Thor Store successfully cleared");
+		    }
 	})
 ```
 ## DOC Generation
