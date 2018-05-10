@@ -133,23 +133,25 @@ Two metadata descriptors are provided. **EndpointDescriptor** to describe docume
 - *MethodDescriptor* example:
 ```java
    restApi.endpoint(endpointPath(NAME_SPACE), (q, a) -> LOGGER.info("Received request for Hammer Rest API"))
-                // endpoint methods
-                .get(MethodDescriptor.Builder.newBuilder()
-                        // Method path
-                        .withPath("export/:example1/:example2/:example3")
-                        // Method description
-                        .withDescription("Clear Thor network resources")
-                        // Path params specifications. If param type is String you don´t need to specify it
-                        .withPathParam().withName("example2").withObject(CardType.class).and()
-                        .withPathParam().withName("example3").withCollectionOf(NeType.class).and()
-                        // Specify response type
-                        .withGenericResponse(), new GsonRoute() {
-                    @Override
-                    public Object handleAndTransform(Request request, Response response) {
-                        storeWriter.clear();
-                        return ok(response, "Thor Store successfully cleared");
-                    }
-                })
+	// endpoint methods
+	.get(MethodDescriptor.Builder.newBuilder()
+		// Method path
+		.withPath("export/:example1/:example2/:example3")
+		// Method description
+		.withDescription("Clear Thor network resources")
+		// Path params specifications. If param type is String you don´t need to specify it
+		.withPathParam().withName("example2").withObject(CardType.class).and()
+		.withPathParam().withName("example3").withCollectionOf(NeType.class).and()
+		// Query params
+		 .withQueryParam().withName("shieldPower").withDescription("Specify the power of the shield").and()
+		// Specify response type
+		.withGenericResponse(), new GsonRoute() {
+	    @Override
+	    public Object handleAndTransform(Request request, Response response) {
+	    
+		return ok(response, "Thor Store successfully cleared");
+	    }
+	})
 ```
 ## DOC Generation
 To generate the Swagger Spec and UI you need to explicitly call **SparkSwagger.generateDoc()** method. Once you do that, the UI and spec will be generated and published to a "swagger-ui" folder under the temporary directory and then the directory is mapped to be served by Spark as static resouces.
