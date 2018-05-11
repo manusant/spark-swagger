@@ -115,7 +115,7 @@ Another resolver implementation can be a simple collection of endpoint instances
 	    .endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
 ```
 ## Metadata Specification
-Two metadata descriptors are provided. **EndpointDescriptor** to describe documentation for and endpoint and **MethodDescriptor** to describe a specific method of an endpoint.
+Two metadata descriptors are provided. **EndpointDescriptor** to describe documentation for an endpoint and **MethodDescriptor** to describe a specific method of an endpoint.
  - *EndpointDescriptor* example:
  ```java
     restApi.endpoint(EndpointDescriptor.Builder.newBuilder()
