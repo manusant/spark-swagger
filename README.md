@@ -170,8 +170,6 @@ SparkSwagger accepts configuration parameters from a configuration file named *s
 
 Parameters with dots in their names are single strings used to organize subordinate parameters, and are not indicative of a nested structure.
 
-For readability, parameters are grouped by category and sorted alphabetically.
-
 Type notations are formatted like so:
 - `String=""` means a String type with a default value of `""`.
 - `String=["a"*, "b", "c", "d"]` means a String type that can be `a`, `b`, `c`, or `d`, with the `*` indicating that `a` is the default value.
