@@ -114,6 +114,8 @@ Another resolver implementation can be a simple collection of endpoint instances
    SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
 	    .endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
 ```
+## Ignore/Exclude Specification
+TODO
 ## Metadata Specification
 Two metadata descriptors are provided. **EndpointDescriptor** to describe documentation for an endpoint and **MethodDescriptor** to describe a specific method of an endpoint.
  - *EndpointDescriptor* example:
