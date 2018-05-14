@@ -54,7 +54,7 @@
         <jacoco.api.version>0.7.6.201602180812</jacoco.api.version>
     </properties>
 
-  <!--  <distributionManagement>
+    <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -63,17 +63,6 @@
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
-    </distributionManagement>-->
-
-    <distributionManagement>
-        <repository>
-            <id>CORIANT Releases</id>
-            <url>http://nexus-lis.intra.coriant.com/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>CORIANT Snapshots</id>
-            <url>http://nexus-lis.intra.coriant.com/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <licenses>
