@@ -115,7 +115,13 @@ Another resolver implementation can be a simple collection of endpoint instances
 	    .endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
 ```
 ## Ignore/Exclude Specification
-TODO
+Ignores are specified via an **IgnoreSpec** . Basically the library can be configured to ignore any field that has one of specified annotations and types or even ignore an entire endpoint matching a specified path. Example of how to configure:
+```java
+   Service spark = Service.ignite().port(55555);
+   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+    .ignores(IgnoreSpec.newBuilder().withIgnoreAnnotated(JsonIgnore.class).withIgnoreTypes(Shield.class, GeoPosition.class)::build)
+    .endpoints(() -> ...)
+```
 ## Metadata Specification
 Two metadata descriptors are provided. **EndpointDescriptor** to describe documentation for an endpoint and **MethodDescriptor** to describe a specific method of an endpoint.
  - *EndpointDescriptor* example:
