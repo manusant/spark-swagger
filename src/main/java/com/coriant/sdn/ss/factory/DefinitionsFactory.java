@@ -1,5 +1,6 @@
 package com.coriant.sdn.ss.factory;
 
+import com.coriant.sdn.ss.conf.IgnoreSpec;
 import com.coriant.sdn.ss.model.Model;
 import com.coriant.sdn.ss.model.ModelImpl;
 import com.coriant.sdn.ss.model.properties.*;
@@ -17,10 +18,12 @@ import java.util.stream.Stream;
  */
 public class DefinitionsFactory {
 
+    public static IgnoreSpec ignoreSpec;
+
     public static Map<String, Model> create(Class type) {
         Map<String, Model> definitions = new HashMap<>();
 
-        if (isObject(type)){
+        if (isObject(type)) {
             ModelImpl model = new ModelImpl();
             model.setType(ModelImpl.OBJECT);
             definitions.put(type.getSimpleName(), model);
@@ -35,18 +38,19 @@ public class DefinitionsFactory {
         Map<String, Model> refDefinitions = new HashMap<>();
 
         for (Field field : fields) {
-            if (isViable(field)){
-                Property property = createProperty(field, field.getType());
-                model.addProperty(field.getName(), property);
+            if (DefinitionsFactory.ignoreSpec == null || !(DefinitionsFactory.ignoreSpec.ignored(field) || DefinitionsFactory.ignoreSpec.ignoreAnnotated(field))) {                if (isViable(field)) {
+                    Property property = createProperty(field, field.getType());
+                    model.addProperty(field.getName(), property);
 
-                if (isRef(field.getType())) {
-                    Map<String, Model> definitions = create(field.getType());
-                    refDefinitions.putAll(definitions);
-                } else if (field.getType().isArray() || Collection.class.isAssignableFrom(field.getType())) {
-                    Class<?> childType = getCollectionType(field);
-                    if (isRef(childType)) {
-                        Map<String, Model> definitions = create(childType);
+                    if (isRef(field.getType())) {
+                        Map<String, Model> definitions = create(field.getType());
                         refDefinitions.putAll(definitions);
+                    } else if (field.getType().isArray() || Collection.class.isAssignableFrom(field.getType())) {
+                        Class<?> childType = getCollectionType(field);
+                        if (isRef(childType)) {
+                            Map<String, Model> definitions = create(childType);
+                            refDefinitions.putAll(definitions);
+                        }
                     }
                 }
             }
@@ -54,7 +58,7 @@ public class DefinitionsFactory {
         return refDefinitions;
     }
 
-    private static boolean isViable(Field field){
+    private static boolean isViable(Field field) {
         return !Modifier.isStatic(field.getModifiers());
     }
 

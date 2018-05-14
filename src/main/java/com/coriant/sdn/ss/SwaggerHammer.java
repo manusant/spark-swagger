@@ -33,32 +33,33 @@ public class SwaggerHammer {
     public void prepareUi(final Config config, Swagger swagger) throws IOException {
         LOGGER.debug("Spark-Swagger: Start compiling Swagger UI");
 
+        String uiFolder = SwaggerHammer.getUiFolder(config.getString("spark-swagger.basePath"));
+
         // 1 - Extract UI/Templates folder to a temporary folder
-        extractUi();
+        extractUi(uiFolder);
 
         // 2 - Decorate index.html according to configurations
         String newIndex = decorateIndex(config);
 
         // 3 - Save new Index to UI folder
-        saveFile("index.html", newIndex);
+        saveFile(uiFolder, "index.html", newIndex);
 
         // 4 - Parse Swagger definitions and save it to UI folder
-        SwaggerParser.parseJs(swagger, getUiFolder() + "swagger-spec.js");
-        SwaggerParser.parseYaml(swagger, getUiFolder() + "doc.yaml");
-        SwaggerParser.parseJson(swagger, getUiFolder() + "doc.json");
+        SwaggerParser.parseJs(swagger, uiFolder + "swagger-spec.js");
+        SwaggerParser.parseYaml(swagger, uiFolder + "doc.yaml");
+        SwaggerParser.parseJson(swagger, uiFolder + "doc.json");
 
         // 5 - Apply theme according to configurations
-        applyTheme(config);
+        applyTheme(uiFolder, config);
     }
 
-    private void extractUi() throws IOException {
-        createDir(getUiFolder());
-        extractUiFolder();
-        extractTemplatesFolder();
+    private void extractUi(String uiFolder) throws IOException {
+        extractUiFolder(uiFolder);
+        extractTemplatesFolder(uiFolder);
         LOGGER.debug("Spark-Swagger: UI resources and templates successfully extracted");
     }
 
-    private void extractUiFolder() throws IOException {
+    private void extractUiFolder(String uiFolder) throws IOException {
 
         String dir = "ui";
         List<String> uiFiles = listFiles(dir)
@@ -69,7 +70,7 @@ public class SwaggerHammer {
 
         for (String uiFileName : uiFiles) {
             InputStream uiFile = SparkSwagger.class.getClassLoader().getResourceAsStream(dir + "/" + uiFileName);
-            File file = new File(getUiFolder() + uiFileName);
+            File file = new File(uiFolder + uiFileName);
             if (file.exists()) {
                 file.delete();
             }
@@ -78,9 +79,9 @@ public class SwaggerHammer {
         }
     }
 
-    private void extractTemplatesFolder() throws IOException {
+    private void extractTemplatesFolder(String uiFolder) throws IOException {
 
-        File templatesFolder = new File(getUiFolder() + "templates/");
+        File templatesFolder = new File(uiFolder + "templates/");
         if (!templatesFolder.exists()) {
             templatesFolder.mkdir();
         }
@@ -94,7 +95,7 @@ public class SwaggerHammer {
 
         for (String templateFileName : templateFiles) {
             InputStream templateFile = SparkSwagger.class.getClassLoader().getResourceAsStream(dir + "/" + templateFileName);
-            File file = new File(getUiFolder() + "templates/" + templateFileName);
+            File file = new File(uiFolder + "templates/" + templateFileName);
             if (file.exists()) {
                 file.delete();
             }
@@ -123,23 +124,23 @@ public class SwaggerHammer {
         return uiFiles;
     }
 
-    private void applyTheme(final Config config) throws IOException {
+    private void applyTheme(String uiFolder, final Config config) throws IOException {
         LOGGER.debug("Spark-Swagger: Start applying configured CSS Theme");
         String themeName = config.getString("spark-swagger.theme");
         Theme theme = Theme.fromValue(themeName);
 
-        String themeCss = readFile("templates/" + theme.getValue() + ".css", StandardCharsets.UTF_8);
-        saveFile("swagger-ui.css", themeCss);
+        String themeCss = readFile(uiFolder, "templates/" + theme.getValue() + ".css", StandardCharsets.UTF_8);
+        saveFile(uiFolder, "swagger-ui.css", themeCss);
         LOGGER.debug("Spark-Swagger: CSS Theme successfully applied");
     }
 
-    private String readFile(String name, Charset encoding) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(getUiFolder() + name));
+    private String readFile(String uiFolder, String name, Charset encoding) throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(uiFolder + name));
         return new String(encoded, encoding);
     }
 
-    private void saveFile(String fileName, String content) throws IOException {
-        File file = new File(getUiFolder() + fileName);
+    private void saveFile(String uiFolder, String fileName, String content) throws IOException {
+        File file = new File(uiFolder + fileName);
         file.delete();
 
         FileWriter f2 = new FileWriter(file, false);
@@ -148,11 +149,15 @@ public class SwaggerHammer {
         LOGGER.debug("Spark-Swagger: Swagger UI file " + fileName + " successfully saved");
     }
 
-    public static String getUiFolder() {
+    public static String getUiFolder(String basePath) {
+        return System.getProperty("java.io.tmpdir") + "/swagger-ui" + (basePath.startsWith("/") ? "" : "/") + basePath + (basePath.endsWith("/") ? "" : "/");
+    }
+
+    public static String getSwaggerUiFolder() {
         return System.getProperty("java.io.tmpdir") + "/swagger-ui/";
     }
 
-    private void createDir(final String path) {
+    public static void createDir(final String path) {
         File uiFolder = new File(path);
         if (!uiFolder.exists()) {
             uiFolder.mkdir();

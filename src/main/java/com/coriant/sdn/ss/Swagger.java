@@ -1,5 +1,6 @@
 package com.coriant.sdn.ss;
 
+import com.coriant.sdn.ss.conf.IgnoreSpec;
 import com.coriant.sdn.ss.factory.DefinitionsFactory;
 import com.coriant.sdn.ss.factory.ParamsFactory;
 import com.coriant.sdn.ss.model.*;
@@ -48,6 +49,8 @@ public class Swagger {
     private Map<String, Object> vendorExtensions;
     @JsonIgnore
     private List<ApiEndpoint> apiEndpoints;
+    @JsonIgnore
+    private IgnoreSpec ignoreSpec;
 
     public Swagger endpoints(List<ApiEndpoint> apiEndpoints) {
         this.apiEndpoints = apiEndpoints;
@@ -157,6 +160,11 @@ public class Swagger {
 
     public Swagger security(SecurityRequirement securityRequirement) {
         this.addSecurity(securityRequirement);
+        return this;
+    }
+
+    public Swagger ignores(IgnoreSpec ignoreConf) {
+        this.ignoreSpec = ignoreConf;
         return this;
     }
 
@@ -443,84 +451,93 @@ public class Swagger {
 
     public void parse() {
         LOGGER.debug("Spark-Swagger: Start parsing metadata");
+        if (apiEndpoints != null) {
+            apiEndpoints.forEach(endpoint -> {
+                if (ignoreSpec == null || !ignoreSpec.ignored(endpoint.getEndpointDescriptor().getPath())) {
 
-        apiEndpoints.forEach(endpoint -> {
-            tag(endpoint.getEndpointDescriptor().getTag());
-            endpoint.getMethodDescriptors().forEach(methodDescriptor -> {
+                    tag(endpoint.getEndpointDescriptor().getTag());
+                    endpoint.getMethodDescriptors().forEach(methodDescriptor -> {
 
-                Operation op = new Operation();
-                op.tag(endpoint.getEndpointDescriptor().getTag().getName());
-                op.description(methodDescriptor.getDescription());
+                        Operation op = new Operation();
+                        op.tag(endpoint.getEndpointDescriptor().getTag().getName());
+                        op.description(methodDescriptor.getDescription());
 
-                List<Parameter> parameters = ParamsFactory.create(methodDescriptor.getPath(), methodDescriptor.getParameters());
-                op.setParameters(parameters);
+                        List<Parameter> parameters = ParamsFactory.create(methodDescriptor.getPath(), methodDescriptor.getParameters());
+                        op.setParameters(parameters);
 
-                if (methodDescriptor.getRequestType() != null) {
-                    // Process fields
-                    Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getRequestType());
-                    for (String key : definitions.keySet()) {
-                        if (!hasDefinition(key)) {
-                            addDefinition(key, definitions.get(key));
+                        // Supply Ignore configurations
+                        DefinitionsFactory.ignoreSpec = this.ignoreSpec;
+
+                        if (methodDescriptor.getRequestType() != null) {
+                            // Process fields
+                            Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getRequestType());
+                            for (String key : definitions.keySet()) {
+                                if (!hasDefinition(key)) {
+                                    addDefinition(key, definitions.get(key));
+                                }
+                            }
+
+                            Model model;
+                            if (definitions.isEmpty()) {
+                                Property property = DefinitionsFactory.createProperty(null, methodDescriptor.getRequestType());
+                                model = new PropertyModelConverter().propertyToModel(property);
+                            } else {
+                                RefModel refModel = new RefModel();
+                                refModel.set$ref(methodDescriptor.getRequestType().getSimpleName());
+                                model = refModel;
+                            }
+
+                            BodyParameter requestBody = new BodyParameter();
+                            requestBody.description("Body object description");
+                            requestBody.setRequired(true);
+                            requestBody.setSchema(model);
+                            op.addParameter(requestBody);
                         }
-                    }
 
-                    Model model;
-                    if (definitions.isEmpty()) {
-                        Property property = DefinitionsFactory.createProperty(null, methodDescriptor.getRequestType());
-                        model = new PropertyModelConverter().propertyToModel(property);
-                    } else {
-                        RefModel refModel = new RefModel();
-                        refModel.set$ref(methodDescriptor.getRequestType().getSimpleName());
-                        model = refModel;
-                    }
+                        if (methodDescriptor.getResponseType() != null) {
+                            // Process fields
+                            Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getResponseType());
+                            for (String key : definitions.keySet()) {
+                                if (!hasDefinition(key)) {
+                                    addDefinition(key, definitions.get(key));
+                                }
+                            }
 
-                    BodyParameter requestBody = new BodyParameter();
-                    requestBody.description("Body object description");
-                    requestBody.setRequired(true);
-                    requestBody.setSchema(model);
-                    op.addParameter(requestBody);
-                }
+                            Property property;
+                            if (definitions.isEmpty()) {
+                                property = DefinitionsFactory.createProperty(null, methodDescriptor.getResponseType());
+                            } else {
+                                RefModel refModel = new RefModel();
+                                refModel.set$ref(methodDescriptor.getResponseType().getSimpleName());
+                                property = new PropertyModelConverter().modelToProperty(refModel);
+                            }
 
-                if (methodDescriptor.getResponseType() != null) {
-                    // Process fields
-                    Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getResponseType());
-                    for (String key : definitions.keySet()) {
-                        if (!hasDefinition(key)) {
-                            addDefinition(key, definitions.get(key));
+                            Response responseBody = new Response();
+                            responseBody.description("successful operation");
+                            responseBody.setSchema(property);
+                            op.addResponse("200", responseBody);
+
+                        } else {
+                            Response responseBody = new Response();
+                            responseBody.description("successful operation");
+                            op.addResponse("200", responseBody);
                         }
-                    }
 
-                    Property property;
-                    if (definitions.isEmpty()) {
-                        property = DefinitionsFactory.createProperty(null, methodDescriptor.getResponseType());
-                    } else {
-                        RefModel refModel = new RefModel();
-                        refModel.set$ref(methodDescriptor.getResponseType().getSimpleName());
-                        property = new PropertyModelConverter().modelToProperty(refModel);
-                    }
+                        if (methodDescriptor.getProduces() != null) {
+                            op.produces(methodDescriptor.getProduces());
+                        }
+                        if (methodDescriptor.getConsumes() != null) {
+                            op.consumes(methodDescriptor.getConsumes());
+                        }
 
-                    Response responseBody = new Response();
-                    responseBody.description("successful operation");
-                    responseBody.setSchema(property);
-                    op.addResponse("200", responseBody);
-
-                } else {
-                    Response responseBody = new Response();
-                    responseBody.description("successful operation");
-                    op.addResponse("200", responseBody);
+                        addOperation(methodDescriptor.getPath(), methodDescriptor.getMethod(), op);
+                    });
                 }
-
-                if (methodDescriptor.getProduces() != null) {
-                    op.produces(methodDescriptor.getProduces());
-                }
-                if (methodDescriptor.getConsumes() != null) {
-                    op.consumes(methodDescriptor.getConsumes());
-                }
-
-                addOperation(methodDescriptor.getPath(), methodDescriptor.getMethod(), op);
             });
-        });
-        LOGGER.debug("Spark-Swagger: metadata successfully parsed");
+            LOGGER.debug("Spark-Swagger: metadata successfully parsed");
+        } else {
+            LOGGER.debug("Spark-Swagger: No metadata to parse. Please check your SparkSwagger configurations and Endpoints Resolver");
+        }
     }
 
     private void addOperation(String pathStr, HttpMethod method, Operation op) {
@@ -533,7 +550,7 @@ public class Swagger {
             path.set(method, op);
             path(formattedPath, path);
         }
-        LOGGER.debug("Spark-Swagger: "+method.name()+" "+formattedPath+" parsed");
+        LOGGER.debug("Spark-Swagger: " + method.name() + " " + formattedPath + " parsed");
     }
 
     @Override

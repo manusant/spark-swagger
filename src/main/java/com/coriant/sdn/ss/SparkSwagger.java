@@ -1,11 +1,13 @@
 package com.coriant.sdn.ss;
 
+import com.coriant.sdn.ss.conf.IgnoreSpec;
 import com.coriant.sdn.ss.conf.IpResolver;
 import com.coriant.sdn.ss.conf.VersionResolver;
 import com.coriant.sdn.ss.descriptor.EndpointDescriptor;
 import com.coriant.sdn.ss.model.*;
 import com.coriant.sdn.ss.rest.Endpoint;
 import com.coriant.sdn.ss.rest.EndpointResolver;
+import com.coriant.sdn.ss.rest.GsonProvider;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -50,8 +53,11 @@ public class SparkSwagger {
 
     private void configDocRoute() {
         // Configure static mapping
-        spark.externalStaticFileLocation(SwaggerHammer.getUiFolder());
-        LOGGER.debug("Spark-Swagger: UI folder deployed at " + SwaggerHammer.getUiFolder());
+        String uiFolder = SwaggerHammer.getUiFolder(this.apiPath);
+        SwaggerHammer.createDir(SwaggerHammer.getSwaggerUiFolder());
+        SwaggerHammer.createDir(uiFolder);
+        spark.externalStaticFileLocation(uiFolder);
+        LOGGER.debug("Spark-Swagger: UI folder deployed at " + uiFolder);
 
         // Enable CORS
         spark.options("/*",
@@ -94,12 +100,17 @@ public class SparkSwagger {
     }
 
     public static SparkSwagger of(final Service spark, final String confPath) {
-        spark.externalStaticFileLocation(SwaggerHammer.getUiFolder());
         return new SparkSwagger(spark, confPath, null);
     }
 
     public SparkSwagger version(final String version) {
         this.version = version;
+        return this;
+    }
+
+    public SparkSwagger ignores(Supplier<IgnoreSpec> confSupplier) {
+        this.swagger.ignores(confSupplier.get());
+        GsonProvider.create(confSupplier.get());
         return this;
     }
 
