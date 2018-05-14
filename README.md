@@ -115,7 +115,7 @@ Another resolver implementation can be a simple collection of endpoint instances
 	    .endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
 ```
 ## Ignore/Exclude Specification
-Ignores are specified via an **IgnoreSpec** . Basically the library can be configured to ignore any field that has one of specified annotations and types or even ignore an entire endpoint matching a specified path. Example of how to configure:
+Ignores are specified via an **IgnoreSpec** . Basically the library can be configured to ignore any field that has one of specified annotations and types or even ignore an entire endpoint matching a specified path. Once ignored the respective field or endpoint is skipped from JSON translation and Swagger documentation. Example of how to configure:
 ```java
    Service spark = Service.ignite().port(55555);
    SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
