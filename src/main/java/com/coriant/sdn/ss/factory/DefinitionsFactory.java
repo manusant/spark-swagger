@@ -4,11 +4,14 @@ import com.coriant.sdn.ss.conf.IgnoreSpec;
 import com.coriant.sdn.ss.model.Model;
 import com.coriant.sdn.ss.model.ModelImpl;
 import com.coriant.sdn.ss.model.properties.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,6 +20,8 @@ import java.util.stream.Stream;
  * @author manusant
  */
 public class DefinitionsFactory {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefinitionsFactory.class);
 
     public static IgnoreSpec ignoreSpec;
 
@@ -38,7 +43,8 @@ public class DefinitionsFactory {
         Map<String, Model> refDefinitions = new HashMap<>();
 
         for (Field field : fields) {
-            if (DefinitionsFactory.ignoreSpec == null || !(DefinitionsFactory.ignoreSpec.ignored(field) || DefinitionsFactory.ignoreSpec.ignoreAnnotated(field))) {                if (isViable(field)) {
+            if (DefinitionsFactory.ignoreSpec == null || !(DefinitionsFactory.ignoreSpec.ignored(field) || DefinitionsFactory.ignoreSpec.ignoreAnnotated(field))) {
+                if (isViable(field)) {
                     Property property = createProperty(field, field.getType());
                     model.addProperty(field.getName(), property);
 
@@ -158,7 +164,19 @@ public class DefinitionsFactory {
     }
 
     private static Class<?> getCollectionType(Field collectionField) {
-        ParameterizedType parameterizedType = (ParameterizedType) collectionField.getGenericType();
-        return (Class<?>) parameterizedType.getActualTypeArguments()[0];
+        try {
+            ParameterizedType parameterizedType = (ParameterizedType) collectionField.getGenericType();
+
+            Type actualType = parameterizedType.getActualTypeArguments()[0];
+            if (actualType instanceof Class) {
+                return (Class<?>) actualType;
+            } else if (actualType instanceof ParameterizedType) {
+                return (Class<?>) ((ParameterizedType) actualType).getActualTypeArguments()[0];
+            }
+        } catch (ClassCastException e) {
+            LOGGER.error("Field mapping not supported. ", e);
+        }
+        // FIXME resolve actual type in strange collection types
+        return String.class;
     }
 }
