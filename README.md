@@ -24,12 +24,12 @@ provide a beautiful documentation interface for any spark application.
 ### Add to your project
 Gradle
 ```groovy
-  compile 'com.coriant.sdn.ss:spark-swagger:1.0.0.45'
+  compile 'com.beerboy.ss:spark-swagger:1.0.0.45'
 ```
 Maven
 ```xml
    <dependency>
-      <groupId>com.coriant.sdn.ss</groupId>
+      <groupId>com.beerboy.ss</groupId>
       <artifactId>spark-swagger</artifactId>
       <version>1.0.0.45</version>
    </dependency>
