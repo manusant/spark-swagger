@@ -22,7 +22,7 @@ provide a beautiful documentation interface for any spark application.
 3 - Generated documentation is served directly from Spark server and can be accessed from **http://hostname:port/** or **http://hostname:port/index.html**.
 
 ### Add to your project
-Gradle
+#### Gradle
 Add this entry to your *build.gradle* file
 ```groovy
  repositories {
@@ -35,7 +35,7 @@ And add the dependency
 ```groovy
   compile 'com.beerboy.ss:spark-swagger:1.0.0.45'
 ```
-Maven
+#### Maven
 Add this to *dependencyManagement* section of your *pom.xml* 
 ```xml
    <repositories>
