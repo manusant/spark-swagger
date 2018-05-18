@@ -38,7 +38,7 @@ And add the dependency
 #### Maven
 Add this to *dependencyManagement* section of your *pom.xml* 
 ```xml
-   <repositories>
+<repositories>
   <repository>
     <id>manusant-beerRepo</id>
     <url>https://packagecloud.io/manusant/beerRepo/maven2</url>
