@@ -1,13 +1,13 @@
 package com.beerboy.ss;
 
-import com.beerboy.ss.conf.IgnoreSpec;
+import com.beerboy.spark.typify.provider.GsonProvider;
+import com.beerboy.spark.typify.spec.IgnoreSpec;
 import com.beerboy.ss.conf.IpResolver;
 import com.beerboy.ss.conf.VersionResolver;
 import com.beerboy.ss.descriptor.EndpointDescriptor;
 import com.beerboy.ss.model.*;
 import com.beerboy.ss.rest.Endpoint;
 import com.beerboy.ss.rest.EndpointResolver;
-import com.beerboy.ss.rest.GsonProvider;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;

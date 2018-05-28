@@ -1,6 +1,6 @@
 package com.beerboy.ss;
 
-import com.beerboy.ss.conf.IgnoreSpec;
+import com.beerboy.spark.typify.spec.IgnoreSpec;
 import com.beerboy.ss.factory.DefinitionsFactory;
 import com.beerboy.ss.factory.ParamsFactory;
 import com.beerboy.ss.model.*;
@@ -9,7 +9,6 @@ import com.beerboy.ss.model.parameters.BodyParameter;
 import com.beerboy.ss.model.parameters.Parameter;
 import com.beerboy.ss.model.properties.Property;
 import com.beerboy.ss.model.utils.PropertyModelConverter;
-import com.beerboy.ss.model.*;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;

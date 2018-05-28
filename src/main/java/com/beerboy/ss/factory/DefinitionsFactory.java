@@ -1,6 +1,6 @@
 package com.beerboy.ss.factory;
 
-import com.beerboy.ss.conf.IgnoreSpec;
+import com.beerboy.spark.typify.spec.IgnoreSpec;
 import com.beerboy.ss.model.Model;
 import com.beerboy.ss.model.ModelImpl;
 import com.beerboy.ss.model.properties.*;

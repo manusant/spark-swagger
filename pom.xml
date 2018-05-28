@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.beerboy.ss</groupId>
     <artifactId>spark-swagger</artifactId>
-    <version>1.0.0.46</version>
+    <version>1.0.0.47</version>
     <packaging>jar</packaging>
 
     <prerequisites>
@@ -30,7 +30,7 @@
         <url>https://github.com/Coriant/SparkSwagger</url>
         <connection>scm:git:ssh://git@github.com:Coriant/SparkSwagger.git</connection>
         <developerConnection>scm:git:ssh://git@github.com:Coriant/SparkSwagger.git</developerConnection>
-        <tag>spark-swagger-1.0.0.40</tag>
+        <tag>spark-swagger-1.0.0.47</tag>
     </scm>
 
     <issueManagement>
@@ -72,6 +72,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>com.beerboy.spark</groupId>
+            <artifactId>spark-typify</artifactId>
+            <version>1.0.0.3</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
             <version>2.9.2</version>
@@ -86,11 +92,7 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.8.2</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.6.2</version>
-        </dependency>
+
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
@@ -237,4 +239,10 @@
         </pluginManagement>
         <defaultGoal>clean install</defaultGoal>
     </build>
+    <repositories>
+        <repository>
+            <id>manusant-beerRepo</id>
+            <url>https://packagecloud.io/manusant/beerRepo/maven2</url>
+        </repository>
+    </repositories>
 </project>

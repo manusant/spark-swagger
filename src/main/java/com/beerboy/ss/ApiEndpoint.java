@@ -4,8 +4,8 @@ import com.beerboy.ss.descriptor.EndpointDescriptor;
 import com.beerboy.ss.descriptor.MethodDescriptor;
 import com.beerboy.ss.model.ContentType;
 import com.beerboy.ss.model.HttpMethod;
-import com.beerboy.ss.rest.GsonRoute;
-import com.beerboy.ss.rest.TypedGsonRoute;
+import com.beerboy.spark.typify.route.GsonRoute;
+import com.beerboy.spark.typify.route.TypedGsonRoute;
 import spark.*;
 
 import java.util.ArrayList;
@@ -40,7 +40,6 @@ public class ApiEndpoint {
         descriptor.setPath(endpointDescriptor.getPath() + descriptor.getPath());
         methodDescriptors.add(descriptor);
 
-        setContentType(route, descriptor);
         return descriptor;
     }
 
@@ -50,17 +49,6 @@ public class ApiEndpoint {
         descriptor.setMethod(method);
         methodDescriptors.add(descriptor);
         return descriptor;
-    }
-
-    private void setContentType(Route route, MethodDescriptor descriptor) {
-        if (route instanceof GsonRoute) {
-            descriptor.setProduces(Collections.singletonList(ContentType.APPLICATION_JSON.getValue()));
-        } else if (route instanceof TypedGsonRoute) {
-            descriptor.setProduces(Collections.singletonList(ContentType.APPLICATION_JSON.getValue()));
-            descriptor.setConsumes(Collections.singletonList(ContentType.APPLICATION_JSON.getValue()));
-        } else {
-            descriptor.setProduces(Collections.singletonList(ContentType.TEXT_PLAIN.getValue()));
-        }
     }
 
     public SparkSwagger and() {
