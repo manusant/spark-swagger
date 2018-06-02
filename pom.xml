@@ -21,21 +21,21 @@
     <licenses>
         <license>
             <name>Apache 2.0</name>
-            <url>https://github.com/swagger-api/swagger-ui</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
     <scm>
-        <url>https://github.com/Coriant/SparkSwagger</url>
-        <connection>scm:git:ssh://git@github.com:Coriant/SparkSwagger.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:Coriant/SparkSwagger.git</developerConnection>
+        <url>https://github.com/manusant/spark-swagger</url>
+        <connection>scm:git:ssh://git@github.com:manusant/spark-swagger.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:manusant/spark-swagger.git</developerConnection>
         <tag>spark-swagger-1.0.0.47</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/Coriant/SparkSwagger/issues</url>
+        <url>https://github.com/manusant/spark-swagger/issues</url>
     </issueManagement>
 
     <properties>
