@@ -90,9 +90,6 @@ public class ParamsFactory {
                 e.printStackTrace();
             }
         }
-        if (uriParts.size() == 1){
-            formatted.append("/");
-        }
         String path = formatted.toString();
         return path.isEmpty() ? "/" : path;
     }
