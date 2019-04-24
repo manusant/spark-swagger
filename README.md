@@ -33,7 +33,7 @@ Add this entry to your *build.gradle* file
 ```
 And add the dependency
 ```groovy
-  compile 'com.beerboy.ss:spark-swagger:1.0.0.47'
+  compile 'com.beerboy.ss:spark-swagger:1.0.0.48'
 ```
 #### Maven
 Add this to *dependencyManagement* section of your *pom.xml* 
@@ -56,7 +56,7 @@ And add the dependency
    <dependency>
       <groupId>com.beerboy.ss</groupId>
       <artifactId>spark-swagger</artifactId>
-      <version>1.0.0.47</version>
+      <version>1.0.0.48</version>
    </dependency>
 ```
 # Usage
