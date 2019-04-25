@@ -4,7 +4,7 @@ cache:
   directories:
   - "$HOME/.cache"
 
-install: mvn .settings.xml $HOME/.m2/settings.xml clean install
+install: mvn --settings .settings.xml clean install
 
 ## Using packageCloud
 deploy:
