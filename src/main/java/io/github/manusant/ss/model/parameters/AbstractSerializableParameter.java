@@ -1,6 +1,5 @@
 package io.github.manusant.ss.model.parameters;
 
-import com.beerboy.ss.model.properties.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
