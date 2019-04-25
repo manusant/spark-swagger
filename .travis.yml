@@ -6,7 +6,7 @@ cache:
   directories:
   - "$HOME/.cache"
 
-install: travis_wait 60 mvn install
+install: travis_wait 90 mvn install
 
 ## Using packageCloud
 deploy:
