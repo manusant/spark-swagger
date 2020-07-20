@@ -1,11 +1,11 @@
 package io.github.manusant.ss;
 
-import com.beerboy.spark.typify.spec.IgnoreSpec;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import io.github.manusant.spark.typify.spec.IgnoreSpec;
 import io.github.manusant.ss.factory.DefinitionsFactory;
 import io.github.manusant.ss.factory.ParamsFactory;
 import io.github.manusant.ss.model.*;

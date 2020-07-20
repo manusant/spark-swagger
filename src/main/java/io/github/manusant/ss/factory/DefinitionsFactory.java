@@ -1,6 +1,6 @@
 package io.github.manusant.ss.factory;
 
-import com.beerboy.spark.typify.spec.IgnoreSpec;
+import io.github.manusant.spark.typify.spec.IgnoreSpec;
 import io.github.manusant.ss.model.Model;
 import io.github.manusant.ss.model.ModelImpl;
 import io.github.manusant.ss.model.properties.*;

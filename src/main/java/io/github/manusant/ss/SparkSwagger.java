@@ -1,9 +1,9 @@
 package io.github.manusant.ss;
 
-import com.beerboy.spark.typify.provider.GsonProvider;
-import com.beerboy.spark.typify.spec.IgnoreSpec;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.github.manusant.spark.typify.provider.TypifyProvider;
+import io.github.manusant.spark.typify.spec.IgnoreSpec;
 import io.github.manusant.ss.conf.IpResolver;
 import io.github.manusant.ss.conf.VersionResolver;
 import io.github.manusant.ss.descriptor.EndpointDescriptor;
@@ -110,7 +110,7 @@ public class SparkSwagger {
 
     public SparkSwagger ignores(Supplier<IgnoreSpec> confSupplier) {
         this.swagger.ignores(confSupplier.get());
-        GsonProvider.create(confSupplier.get());
+        TypifyProvider.setUp(confSupplier.get());
         return this;
     }
 
