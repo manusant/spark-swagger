@@ -17,9 +17,9 @@ public class MethodDescriptor {
     private HttpMethod method;
     private String path;
     private String description;
-    private Class requestType;
+    private Class<?> requestType;
     private boolean requestAsCollection;
-    private Class responseType;
+    private Class<?> responseType;
     private boolean responseAsCollection;
     private String operationId;
     private List<String> consumes;
@@ -53,11 +53,11 @@ public class MethodDescriptor {
         this.description = description;
     }
 
-    public Class getRequestType() {
+    public Class<?> getRequestType() {
         return requestType;
     }
 
-    public void setRequestType(Class requestType) {
+    public void setRequestType(Class<?> requestType) {
         this.requestType = requestType;
     }
 
@@ -69,11 +69,11 @@ public class MethodDescriptor {
         this.requestAsCollection = requestAsCollection;
     }
 
-    public Class getResponseType() {
+    public Class<?> getResponseType() {
         return responseType;
     }
 
-    public void setResponseType(Class responseType) {
+    public void setResponseType(Class<?> responseType) {
         this.responseType = responseType;
     }
 

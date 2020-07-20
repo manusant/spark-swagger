@@ -14,9 +14,9 @@ import java.util.Optional;
  */
 public class ApiEndpoint {
 
-    private SparkSwagger swagger;
-    private EndpointDescriptor endpointDescriptor;
-    private List<MethodDescriptor> methodDescriptors;
+    private final SparkSwagger swagger;
+    private final EndpointDescriptor endpointDescriptor;
+    private final List<MethodDescriptor> methodDescriptors;
 
     public ApiEndpoint(final SparkSwagger swagger, final EndpointDescriptor endpointDescriptor) {
         this.swagger = swagger;

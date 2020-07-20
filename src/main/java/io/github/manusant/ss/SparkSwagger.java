@@ -32,10 +32,10 @@ public class SparkSwagger {
     private static final Logger LOGGER = LoggerFactory.getLogger(SparkSwagger.class);
 
     public static final String CONF_FILE_NAME = "spark-swagger.conf";
-    private String apiPath;
-    private Swagger swagger;
-    private Service spark;
-    private Config config;
+    private final String apiPath;
+    private final Swagger swagger;
+    private final Service spark;
+    private final Config config;
     private String version;
 
     private SparkSwagger(final Service spark, final String confPath, final String version) {
@@ -57,7 +57,7 @@ public class SparkSwagger {
         SwaggerHammer.createDir(SwaggerHammer.getSwaggerUiFolder());
         SwaggerHammer.createDir(uiFolder);
         spark.externalStaticFileLocation(uiFolder);
-        LOGGER.debug("Spark-Swagger: UI folder deployed at " + uiFolder);
+        LOGGER.debug("Spark-Swagger: UI folder deployed at {}", uiFolder);
 
         // Enable CORS
         spark.options("/*",
@@ -188,7 +188,7 @@ public class SparkSwagger {
             String[] hostParts = host.split(":");
             host = IpResolver.resolvePublicIp() + ":" + hostParts[1];
         }
-        LOGGER.debug("Spark-Swagger: Host resolved to " + host);
+        LOGGER.debug("Spark-Swagger: Host resolved to {}", host);
         return host;
     }
 

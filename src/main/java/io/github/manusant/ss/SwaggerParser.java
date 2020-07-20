@@ -27,7 +27,7 @@ public class SwaggerParser {
         swagger.parse();
         // Write object as YAML file
         mapper.writeValue(new File(filePath), swagger);
-        LOGGER.debug("Spark-Swagger: Swagger definitions saved as "+filePath+" [YAML]");
+        LOGGER.debug("Spark-Swagger: Swagger definitions saved as {} [YAML]", filePath);
     }
 
     public static void parseJson(final Swagger swagger, final String filePath) throws IOException {
@@ -38,7 +38,7 @@ public class SwaggerParser {
         // Parse endpoints
         swagger.parse();
         mapper.writeValue(new File(filePath), swagger);
-        LOGGER.debug("Spark-Swagger: Swagger definitions saved as "+filePath+" [JSON]");
+        LOGGER.debug("Spark-Swagger: Swagger definitions saved as " + filePath + " [JSON]");
     }
 
     public static void parseJs(final Swagger swagger, final String filePath) throws IOException {
@@ -58,6 +58,6 @@ public class SwaggerParser {
         try (PrintWriter out = new PrintWriter(filePath)) {
             out.println(js);
         }
-        LOGGER.debug("Spark-Swagger: Swagger definitions saved as "+filePath+" [JS]");
+        LOGGER.debug("Spark-Swagger: Swagger definitions saved as " + filePath + " [JS]");
     }
 }

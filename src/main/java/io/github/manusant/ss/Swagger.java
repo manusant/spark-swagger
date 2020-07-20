@@ -230,7 +230,7 @@ public class Swagger {
 
     public void addScheme(Scheme scheme) {
         if (schemes == null) {
-            schemes = new ArrayList<Scheme>();
+            schemes = new ArrayList<>();
         }
         if (!schemes.contains(scheme)) {
             schemes.add(scheme);
@@ -330,7 +330,7 @@ public class Swagger {
 
     public void addSecurityDefinition(String name, SecuritySchemeDefinition securityDefinition) {
         if (this.securityDefinitions == null) {
-            this.securityDefinitions = new LinkedHashMap<String, SecuritySchemeDefinition>();
+            this.securityDefinitions = new LinkedHashMap<>();
         }
         this.securityDefinitions.put(name, securityDefinition);
     }
@@ -709,7 +709,7 @@ public class Swagger {
         }
 
         if (this.vendorExtensions == null) {
-            this.vendorExtensions = new LinkedHashMap<String, Object>();
+            this.vendorExtensions = new LinkedHashMap<>();
         }
 
         this.vendorExtensions.putAll(vendorExtensions);

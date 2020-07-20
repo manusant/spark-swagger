@@ -43,21 +43,22 @@ public class DefinitionsFactory {
         Map<String, Model> refDefinitions = new HashMap<>();
 
         for (Field field : fields) {
-            if (DefinitionsFactory.ignoreSpec == null || !(DefinitionsFactory.ignoreSpec.ignored(field) || DefinitionsFactory.ignoreSpec.ignoreAnnotated(field))) {                if (isViable(field)) {
-                Property property = createProperty(field, field.getType());
-                model.addProperty(field.getName(), property);
+            if (DefinitionsFactory.ignoreSpec == null || !(DefinitionsFactory.ignoreSpec.ignored(field) || DefinitionsFactory.ignoreSpec.ignoreAnnotated(field))) {
+                if (isViable(field)) {
+                    Property property = createProperty(field, field.getType());
+                    model.addProperty(field.getName(), property);
 
-                if (isRef(field.getType())) {
-                    Map<String, Model> definitions = create(field.getType());
-                    refDefinitions.putAll(definitions);
-                } else if (field.getType().isArray() || Collection.class.isAssignableFrom(field.getType())) {
-                    Class<?> childType = getCollectionType(field);
-                    if (isRef(childType)) {
-                        Map<String, Model> definitions = create(childType);
+                    if (isRef(field.getType())) {
+                        Map<String, Model> definitions = create(field.getType());
                         refDefinitions.putAll(definitions);
+                    } else if (field.getType().isArray() || Collection.class.isAssignableFrom(field.getType())) {
+                        Class<?> childType = getCollectionType(field);
+                        if (isRef(childType)) {
+                            Map<String, Model> definitions = create(childType);
+                            refDefinitions.putAll(definitions);
+                        }
                     }
                 }
-            }
             }
         }
         return refDefinitions;
@@ -128,7 +129,7 @@ public class DefinitionsFactory {
                 || Collection.class.isAssignableFrom(fieldClass)
                 || File.class.isAssignableFrom(fieldClass)
                 || fieldClass.getCanonicalName().contains("java")
-                ) {
+        ) {
             return false;
         } else {
             return true;
@@ -150,7 +151,7 @@ public class DefinitionsFactory {
                 || fieldClass.equals(Long.class)
                 || fieldClass.equals(long.class)
                 || fieldClass.equals(String.class)
-                ) {
+        ) {
             return false;
         } else {
             return true;

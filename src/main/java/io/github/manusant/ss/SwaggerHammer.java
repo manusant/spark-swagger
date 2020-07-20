@@ -1,8 +1,8 @@
 package io.github.manusant.ss;
 
-import io.github.manusant.ss.ui.UiTemplates;
-import io.github.manusant.ss.conf.Theme;
 import com.typesafe.config.Config;
+import io.github.manusant.ss.conf.Theme;
+import io.github.manusant.ss.ui.UiTemplates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +75,9 @@ public class SwaggerHammer {
                 file.delete();
             }
             file.createNewFile();
-            Files.copy(uiFile, file.getAbsoluteFile().toPath(), StandardCopyOption.REPLACE_EXISTING);
+            if (uiFile != null) {
+                Files.copy(uiFile, file.getAbsoluteFile().toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
         }
     }
 
@@ -100,7 +102,9 @@ public class SwaggerHammer {
                 file.delete();
             }
             file.createNewFile();
-            Files.copy(templateFile, file.getAbsoluteFile().toPath(), StandardCopyOption.REPLACE_EXISTING);
+            if (templateFile != null) {
+                Files.copy(templateFile, file.getAbsoluteFile().toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
         }
     }
 
@@ -110,14 +114,15 @@ public class SwaggerHammer {
         CodeSource src = SparkSwagger.class.getProtectionDomain().getCodeSource();
         if (src != null) {
             URL jar = src.getLocation();
-            ZipInputStream zip = new ZipInputStream(jar.openStream());
-            while (true) {
-                ZipEntry e = zip.getNextEntry();
-                if (e == null)
-                    break;
-                String name = e.getName();
-                if (name.startsWith(prefix)) {
-                    uiFiles.add(name);
+            try (ZipInputStream zip = new ZipInputStream(jar.openStream())) {
+                while (true) {
+                    ZipEntry e = zip.getNextEntry();
+                    if (e == null)
+                        break;
+                    String name = e.getName();
+                    if (name.startsWith(prefix)) {
+                        uiFiles.add(name);
+                    }
                 }
             }
         }
