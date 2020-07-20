@@ -68,9 +68,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.beerboy.spark</groupId>
+            <groupId>io.github.manusant</groupId>
             <artifactId>spark-typify</artifactId>
-            <version>1.0.0.3</version>
+            <version>2.0.0</version>
         </dependency>
 
         <dependency>
@@ -211,11 +211,4 @@
             </build>
         </profile>
     </profiles>
-
-    <repositories>
-        <repository>
-            <id>manusant-beerRepo</id>
-            <url>https://packagecloud.io/manusant/beerRepo/maven2</url>
-        </repository>
-    </repositories>
 </project>
