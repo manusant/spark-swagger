@@ -17,4 +17,6 @@ bin/.gitignore
 /dev/*
 /logs/
 *.iml
+*.class
+target
 settings.xml
