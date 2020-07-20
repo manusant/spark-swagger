@@ -1,0 +1,23 @@
+package io.github.manusant.ss.demo;
+
+import io.github.manusant.ss.SparkSwagger;
+import io.github.manusant.ss.demo.endpoint.HammerEndpoint;
+import io.github.manusant.ss.demo.endpoint.ShieldEndpoint;
+import spark.Service;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+public class ThorApi {
+
+    public static void main(String[] args) throws IOException {
+
+        Service spark = Service.ignite()
+                .ipAddress("localhost")
+                .port(55555);
+
+        SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+                .endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
+                .generateDoc();
+    }
+}
