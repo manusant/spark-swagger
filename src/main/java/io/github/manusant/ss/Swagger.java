@@ -124,7 +124,7 @@ public class Swagger {
 
     public Swagger path(String key, Path path) {
         if (this.paths == null) {
-            this.paths = new LinkedHashMap<String, Path>();
+            this.paths = new LinkedHashMap<>();
         }
         this.paths.put(key, path);
         return this;
@@ -137,7 +137,7 @@ public class Swagger {
 
     public Swagger response(String key, Response response) {
         if (this.responses == null) {
-            this.responses = new LinkedHashMap<String, Response>();
+            this.responses = new LinkedHashMap<>();
         }
         this.responses.put(key, response);
         return this;
@@ -170,7 +170,7 @@ public class Swagger {
 
     public Swagger vendorExtension(String key, Object extension) {
         if (this.vendorExtensions == null) {
-            this.vendorExtensions = new LinkedHashMap<String, Object>();
+            this.vendorExtensions = new LinkedHashMap<>();
         }
         this.vendorExtensions.put(key, extension);
         return this;
@@ -260,7 +260,7 @@ public class Swagger {
 
     public void addTag(Tag tag) {
         if (this.tags == null) {
-            this.tags = new ArrayList<Tag>();
+            this.tags = new ArrayList<>();
         }
         if (tag != null && tag.getName() != null) {
             if (getTag(tag.getName()) == null) {
@@ -279,7 +279,7 @@ public class Swagger {
 
     public void addConsumes(String consumes) {
         if (this.consumes == null) {
-            this.consumes = new ArrayList<String>();
+            this.consumes = new ArrayList<>();
         }
 
         if (!this.consumes.contains(consumes)) {
@@ -297,7 +297,7 @@ public class Swagger {
 
     public void addProduces(String produces) {
         if (this.produces == null) {
-            this.produces = new ArrayList<String>();
+            this.produces = new ArrayList<>();
         }
 
         if (!this.produces.contains(produces)) {
@@ -416,7 +416,7 @@ public class Swagger {
 
     public void addParameter(String key, Parameter parameter) {
         if (this.parameters == null) {
-            this.parameters = new LinkedHashMap<String, Parameter>();
+            this.parameters = new LinkedHashMap<>();
         }
         this.parameters.put(key, parameter);
     }

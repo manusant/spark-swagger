@@ -1,17 +1,15 @@
 package io.github.manusant.ss.model;
 
-import io.github.manusant.ss.model.properties.Property;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.github.manusant.ss.model.properties.Property;
 
-import javax.xml.bind.annotation.XmlType;
 import java.math.BigDecimal;
 import java.util.*;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@XmlType(propOrder = {"type", "required", "discriminator", "properties"})
 @JsonPropertyOrder({"type", "required", "discriminator", "properties"})
 public class ModelImpl extends AbstractModel {
     public static final String OBJECT = "object";
@@ -39,7 +37,7 @@ public class ModelImpl extends AbstractModel {
     }
 
     public ModelImpl _enum(String value) {
-        if(this._enum == null) {
+        if (this._enum == null) {
             this._enum = new ArrayList<String>();
         }
         this._enum.add(value);
@@ -174,7 +172,7 @@ public class ModelImpl extends AbstractModel {
     }
 
     public void setAllowEmptyValue(Boolean allowEmptyValue) {
-        if(allowEmptyValue != null) {
+        if (allowEmptyValue != null) {
             this.allowEmptyValue = allowEmptyValue;
         }
     }
@@ -226,7 +224,7 @@ public class ModelImpl extends AbstractModel {
 
     public void setRequired(List<String> required) {
         this.required = required;
-        if (required != null && properties != null){
+        if (required != null && properties != null) {
             for (String s : required) {
                 Property p = properties.get(s);
                 if (p != null) {
@@ -278,7 +276,7 @@ public class ModelImpl extends AbstractModel {
     }
 
     public Object getDefaultValue() {
-        if(defaultValue == null) {
+        if (defaultValue == null) {
             return null;
         }
 
@@ -290,8 +288,7 @@ public class ModelImpl extends AbstractModel {
             if ("number".equals(this.type)) {
                 return new BigDecimal(defaultValue);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
 
@@ -418,7 +415,7 @@ public class ModelImpl extends AbstractModel {
         cloned.type = this.type;
         cloned.name = this.name;
         cloned.required = this.required;
-        if (this.properties != null) cloned.properties =  new LinkedHashMap<String, Property>(this.properties);
+        if (this.properties != null) cloned.properties = new LinkedHashMap<String, Property>(this.properties);
         cloned.isSimple = this.isSimple;
         cloned.description = this.description;
         cloned.example = this.example;
