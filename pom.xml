@@ -38,14 +38,6 @@
         <url>https://github.com/manusant/spark-swagger/issues</url>
     </issueManagement>
 
-    <distributionManagement>
-        <repository>
-            <id>github-oss</id>
-            <name>Github OSS Packages</name>
-            <url>https://maven.pkg.github.com/manusant</url>
-        </repository>
-    </distributionManagement>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -67,13 +59,10 @@
     </properties>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>github-oss</id>
+            <name>Github OSS Packages</name>
+            <url>https://maven.pkg.github.com/manusant</url>
         </repository>
     </distributionManagement>
 
