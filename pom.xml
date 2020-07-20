@@ -40,8 +40,8 @@
 
     <distributionManagement>
         <repository>
-            <id>github-manusant</id>
-            <name>Manusant Packages</name>
+            <id>github-oss</id>
+            <name>Github OSS Packages</name>
             <url>https://maven.pkg.github.com/manusant</url>
         </repository>
     </distributionManagement>
