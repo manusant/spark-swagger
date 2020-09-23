@@ -489,6 +489,7 @@ public class Swagger {
 
                             BodyParameter requestBody = new BodyParameter();
                             requestBody.description("Body object description");
+                            requestBody.name("body");
                             requestBody.setRequired(true);
                             requestBody.setSchema(model);
                             op.addParameter(requestBody);
