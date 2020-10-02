@@ -6,6 +6,7 @@ import io.github.manusant.ss.model.ModelImpl;
 import io.github.manusant.ss.model.properties.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -172,6 +173,12 @@ public class DefinitionsFactory {
                 return (Class<?>) actualType;
             } else if (actualType instanceof ParameterizedType) {
                 return (Class<?>) ((ParameterizedType) actualType).getActualTypeArguments()[0];
+            }
+            // Attempt to extract the class if the collectionField represents
+            // a bounded type (e.g., T extends MyClass).
+            Type[] bounds = ((TypeVariableImpl<?>) actualType).getBounds();
+            if (bounds.length > 0) {
+                return (Class<?>) bounds[0];
             }
         } catch (ClassCastException e) {
             LOGGER.error("Field mapping not supported. ", e);
