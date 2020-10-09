@@ -127,6 +127,7 @@ public class DefinitionsFactory {
                 || fieldClass.equals(String.class)
                 || fieldClass.equals(UUID.class)
                 || fieldClass.isArray()
+                || fieldClass.equals(Object.class)
                 || Collection.class.isAssignableFrom(fieldClass)
                 || File.class.isAssignableFrom(fieldClass)
                 || fieldClass.getCanonicalName().contains("java")
