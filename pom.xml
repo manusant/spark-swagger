@@ -33,16 +33,10 @@
         <tag>HEAD</tag>
     </scm>
     <repositories>
-        <!-- To download spark-typify -->
+        <!-- To download spark-typify from github -->
         <repository>
-            <id>manusant-beerRepo</id>
-            <url>https://packagecloud.io/manusant/beerRepo/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
     <issueManagement>
@@ -80,7 +74,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.github.manusant</groupId>
+            <groupId>com.github.manusant</groupId>
             <artifactId>spark-typify</artifactId>
             <version>2.0.1</version>
         </dependency>
