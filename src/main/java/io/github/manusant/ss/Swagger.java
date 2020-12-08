@@ -462,6 +462,9 @@ public class Swagger {
                         op.tag(endpoint.getEndpointDescriptor().getTag().getName());
                         op.description(methodDescriptor.getDescription());
 
+                        if (methodDescriptor.getSummary() != null) op.summary(methodDescriptor.getSummary());
+                        if (methodDescriptor.getOperationId() != null) op.operationId(methodDescriptor.getOperationId());
+
                         List<Parameter> parameters = ParamsFactory.create(methodDescriptor.getPath(), methodDescriptor.getParameters());
                         op.setParameters(parameters);
 

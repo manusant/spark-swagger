@@ -103,9 +103,8 @@ public class SparkSwagger {
         return new SparkSwagger(spark, confPath, null);
     }
 
-    public SparkSwagger version(final String version) {
-        this.version = version;
-        return this;
+    public static SparkSwagger of(final Service spark, final String confPath, final String version) {
+        return new SparkSwagger(spark, confPath, version);
     }
 
     public SparkSwagger ignores(Supplier<IgnoreSpec> confSupplier) {
@@ -118,10 +117,14 @@ public class SparkSwagger {
         new SwaggerHammer().prepareUi(config, swagger);
     }
 
+    public ApiEndpoint endpoint(final EndpointDescriptor.Builder descriptorBuilder) {
+        return endpoint(descriptorBuilder, null);
+    }
+
     public ApiEndpoint endpoint(final EndpointDescriptor.Builder descriptorBuilder, final Filter filter) {
         Optional.ofNullable(apiPath).orElseThrow(() -> new IllegalStateException("API Path must be specified in order to build REST endpoint"));
         EndpointDescriptor descriptor = descriptorBuilder.build();
-        spark.before(apiPath + descriptor.getPath() + "/*", filter);
+        if (filter != null) spark.before(apiPath + descriptor.getPath() + "/*", filter);
         ApiEndpoint apiEndpoint = new ApiEndpoint(this, descriptor);
         this.swagger.addApiEndpoint(apiEndpoint);
         return apiEndpoint;

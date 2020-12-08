@@ -16,6 +16,7 @@ public class MethodDescriptor {
 
     private HttpMethod method;
     private String path;
+    private String summary;
     private String description;
     private Class<?> requestType;
     private boolean requestAsCollection;
@@ -45,6 +46,13 @@ public class MethodDescriptor {
         this.path = path;
     }
 
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
     public String getDescription() {
         return description;
     }
@@ -148,6 +156,7 @@ public class MethodDescriptor {
     public static final class Builder {
         private HttpMethod method;
         private String path;
+        private String summary;
         private String description;
         private Class requestType;
         private boolean requestAsCollection;
@@ -175,6 +184,11 @@ public class MethodDescriptor {
 
         public Builder withPath(String path) {
             this.path = path;
+            return this;
+        }
+
+        public Builder withSummary(String summary) {
+            this.summary = summary;
             return this;
         }
 
@@ -274,6 +288,7 @@ public class MethodDescriptor {
             MethodDescriptor methodDescriptor = new MethodDescriptor();
             methodDescriptor.setMethod(method);
             methodDescriptor.setPath(path);
+            methodDescriptor.setSummary(summary);
             methodDescriptor.setDescription(description);
             methodDescriptor.setRequestType(requestType);
             methodDescriptor.setRequestAsCollection(requestAsCollection);
