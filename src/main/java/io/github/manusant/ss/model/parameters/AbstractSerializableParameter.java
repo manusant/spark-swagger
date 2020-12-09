@@ -387,6 +387,11 @@ public abstract class AbstractSerializableParameter<T extends AbstractSerializab
     }
 
     @JsonProperty("x-example")
+    public Object getXExample() {
+        return getExample();
+    }
+
+    @JsonProperty("example")
     public Object getExample() {
         if (example == null) {
             return null;

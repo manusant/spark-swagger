@@ -50,6 +50,11 @@ public class BodyParameter extends AbstractParameter implements Parameter {
     }
 
     @JsonProperty("x-examples")
+    public Map<String, String> getXExamples() {
+        return examples;
+    }
+
+    @JsonProperty("examples")
     public Map<String, String> getExamples() {
         return examples;
     }
