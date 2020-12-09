@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manusant.spark.typify.spec.IgnoreSpec;
+import io.github.manusant.ss.descriptor.ParameterDescriptor;
 import io.github.manusant.ss.factory.DefinitionsFactory;
 import io.github.manusant.ss.factory.ParamsFactory;
 import io.github.manusant.ss.model.*;
@@ -475,48 +476,18 @@ public class Swagger {
                         // Supply Ignore configurations
                         DefinitionsFactory.ignoreSpec = this.ignoreSpec;
 
-                        if (methodDescriptor.getBody().getModel() != null) {
-
-                            final Model model = methodDescriptor.getBody().getModel();
+                        final ParameterDescriptor methodBody = methodDescriptor.getBody();
+                        if (methodBody != null && methodBody.getModel() != null) {
+                            final Model model = methodBody.getModel();
                             addDefinition(model.getTitle(), model);
                             BodyParameter requestBody = new BodyParameter();
-                            requestBody.name(methodDescriptor.getBody().getName());
-                            requestBody.description(methodDescriptor.getBody().getDescription());
-                            requestBody.setRequired(methodDescriptor.getBody().isRequired());
+                            requestBody.name(methodBody.getName());
+                            requestBody.description(methodBody.getDescription());
+                            requestBody.setRequired(methodBody.isRequired());
                             requestBody.setSchema(model);
-                            if (methodDescriptor.getBody().getExample() != null)
-                            {
-//                                requestBody.example("brent/json", methodDescriptor.getBody().getExample());
-                            }
                             op.addParameter(requestBody);
                         }
                         else if (methodDescriptor.getRequestType() != null) {
-
-                            Model model;
-/*                            final ObjectNode exampleJson = methodDescriptor.getBody().getExampleJson();
-                            if (exampleJson != null)
-                            {
-                                final ModelImpl jsonModel = new ModelImpl();
-                                jsonModel.setExample(exampleJson);
-                                jsonModel.setTitle(methodDescriptor.getBody().getObject().getSimpleName());
-
-                                final Map<String, Property> properties = new HashMap<>();
-                                final Iterator<Map.Entry<String, JsonNode>> exampleFields = exampleJson.fields();
-                                while (exampleFields.hasNext())
-                                {
-                                    final Map.Entry<String, JsonNode> field = exampleFields.next();
-                                    final String name = field.getKey().trim();
-                                    if (name == null || name.isEmpty()) continue;
-                                    field.getValue().getNodeType();
-                                    Property property = DefinitionsFactory.createProperty(name, field.getValue());
-                                    properties.put(name, property);
-                                }
-                                jsonModel.setProperties(properties);
-
-                                model = jsonModel;
-                            }
-                            else
-                            {*/
                                 // Process fields
                                 Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getRequestType());
                                 for (String key : definitions.keySet()) {
@@ -525,6 +496,7 @@ public class Swagger {
                                     }
                                 }
 
+                                Model model;
                                 if (definitions.isEmpty()) {
                                     Property property = DefinitionsFactory.createProperty(null, methodDescriptor.getRequestType());
                                     model = new PropertyModelConverter().propertyToModel(property);
@@ -533,12 +505,11 @@ public class Swagger {
                                     refModel.set$ref(methodDescriptor.getRequestType().getSimpleName());
                                     model = refModel;
                                 }
-//                            }
 
                             BodyParameter requestBody = new BodyParameter();
-                            requestBody.name(methodDescriptor.getBody().getName());
-                            requestBody.description(methodDescriptor.getBody().getDescription());
-                            requestBody.setRequired(methodDescriptor.getBody().isRequired());
+                            requestBody.name(methodBody != null? methodBody.getName() : "body");
+                            requestBody.description(methodBody != null? methodBody.getDescription() : "Body object description");
+                            requestBody.setRequired(methodBody != null? methodBody.isRequired() : true);
                             requestBody.setSchema(model);
                             op.addParameter(requestBody);
                         }

@@ -117,6 +117,13 @@ public class SparkSwagger {
         new SwaggerHammer().prepareUi(config, swagger);
     }
 
+    public ApiEndpoint getEndpoint(final String path) {
+        for (final ApiEndpoint ep : swagger.getApiEndpoints()) {
+            if (path.equals(ep.getEndpointDescriptor().getPath())) return ep;
+        }
+        return null;
+    }
+
     public ApiEndpoint endpoint(final EndpointDescriptor.Builder descriptorBuilder) {
         return endpoint(descriptorBuilder, null);
     }

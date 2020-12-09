@@ -21,7 +21,6 @@ public class ParameterDescriptor {
     private String description;
     private boolean required = false;
     private String example;
-    private ObjectNode exampleJson;
     private Boolean allowEmptyValue;
     private Model model;
     private Class object;
@@ -74,14 +73,6 @@ public class ParameterDescriptor {
 
     public void setExample(String example) {
         this.example = example;
-    }
-
-    public ObjectNode getExampleJson() {
-        return exampleJson;
-    }
-    public ParameterDescriptor setExampleJson(ObjectNode exampleJson) {
-        this.exampleJson = exampleJson;
-        return this;
     }
 
     public Boolean getAllowEmptyValue() {
