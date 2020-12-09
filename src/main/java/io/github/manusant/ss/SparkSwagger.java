@@ -227,16 +227,18 @@ public class SparkSwagger {
         info.title(infoConfig.getString("title"));
         info.termsOfService(infoConfig.getString("termsOfService"));
 
-/*        List<String> schemeStrings = Optional.ofNullable(infoConfig.getStringList("schemes")).orElseThrow(() -> new IllegalArgumentException("'spark-swagger.info.schemes' configuration is required"));
-        List<Scheme> schemes = schemeStrings.stream()
-                .filter(s -> Scheme.forValue(s) != null)
-                .map(Scheme::forValue)
-                .collect(Collectors.toList());
-        if (schemes.isEmpty()) {
-            throw new IllegalArgumentException("At least one Scheme mus be specified. Use 'spark-swagger.info.schemes' property. spark-swagger.info.schemes =[\"HTTP\"]");
+        if (infoConfig.hasPath("schemes")) {
+            List<String> schemeStrings = Optional.ofNullable(infoConfig.getStringList("schemes")).orElseThrow(() -> new IllegalArgumentException("'spark-swagger.info.schemes' configuration is required"));
+            List<Scheme> schemes = schemeStrings.stream()
+                    .filter(s -> Scheme.forValue(s) != null)
+                    .map(Scheme::forValue)
+                    .collect(Collectors.toList());
+            if (schemes.isEmpty()) {
+                throw new IllegalArgumentException("At least one Scheme mus be specified. Use 'spark-swagger.info.schemes' property. spark-swagger.info.schemes =[\"HTTP\"]");
+            }
+            swagger.schemes(schemes);
         }
-        swagger.schemes(schemes);
-*/
+
         Config contactConfig = this.config.getConfig("spark-swagger.info.contact");
         if (contactConfig != null) {
             Contact contact = new Contact();
@@ -245,12 +247,15 @@ public class SparkSwagger {
             contact.url(contactConfig.getString("url"));
             info.setContact(contact);
         }
-        Config licenseConfig = this.config.getConfig("spark-swagger.info.license");
-        if (licenseConfig != null) {
-            License license = new License();
-            license.name(licenseConfig.getString("name"));
-            license.url(licenseConfig.getString("url"));
-            info.setLicense(license);
+
+        if (this.config.hasPath("spark-swagger.info.license")) {
+            Config licenseConfig = this.config.getConfig("spark-swagger.info.license");
+            if (licenseConfig != null) {
+                License license = new License();
+                license.name(licenseConfig.getString("name"));
+                license.url(licenseConfig.getString("url"));
+                info.setLicense(license);
+            }
         }
         return info;
     }
