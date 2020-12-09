@@ -2,6 +2,10 @@ package io.github.manusant.ss.descriptor;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import io.github.manusant.ss.model.Model;
+
 /**
  * @author manusant
  */
@@ -17,7 +21,9 @@ public class ParameterDescriptor {
     private String description;
     private boolean required = false;
     private String example;
+    private ObjectNode exampleJson;
     private Boolean allowEmptyValue;
+    private Model model;
     private Class object;
     private Class collectionOf;
     private String defaultValue;
@@ -70,12 +76,29 @@ public class ParameterDescriptor {
         this.example = example;
     }
 
+    public ObjectNode getExampleJson() {
+        return exampleJson;
+    }
+    public ParameterDescriptor setExampleJson(ObjectNode exampleJson) {
+        this.exampleJson = exampleJson;
+        return this;
+    }
+
     public Boolean getAllowEmptyValue() {
         return allowEmptyValue;
     }
 
     public void setAllowEmptyValue(Boolean allowEmptyValue) {
         this.allowEmptyValue = allowEmptyValue;
+    }
+
+
+    public Model getModel() {
+        return model;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
     }
 
     public Class getObject() {
@@ -118,6 +141,7 @@ public class ParameterDescriptor {
         private boolean required = false;
         private String example;
         private Boolean allowEmptyValue;
+        private Model model;
         private Class object;
         private Class collectionOf;
         private String defaultValue;
@@ -169,6 +193,11 @@ public class ParameterDescriptor {
             return this;
         }
 
+        public Builder withModel(Model model) {
+            this.model = model;
+            return this;
+        }
+
         public Builder withObject(Class object) {
             this.object = object;
             return this;
@@ -193,6 +222,7 @@ public class ParameterDescriptor {
             parameterDescriptor.setRequired(required);
             parameterDescriptor.setExample(example);
             parameterDescriptor.setAllowEmptyValue(allowEmptyValue);
+            parameterDescriptor.setModel(model);
             parameterDescriptor.setObject(object);
             parameterDescriptor.setCollectionOf(collectionOf);
             parameterDescriptor.setDefaultValue(defaultValue);

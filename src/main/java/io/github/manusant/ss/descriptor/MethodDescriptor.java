@@ -20,6 +20,7 @@ public class MethodDescriptor {
     private String description;
     private Class<?> requestType;
     private boolean requestAsCollection;
+    private ParameterDescriptor body;
     private Class<?> responseType;
     private boolean responseAsCollection;
     private String operationId;
@@ -75,6 +76,13 @@ public class MethodDescriptor {
 
     public void setRequestAsCollection(boolean requestAsCollection) {
         this.requestAsCollection = requestAsCollection;
+    }
+
+    public ParameterDescriptor getBody() {
+        return body;
+    }
+    public void setBody(ParameterDescriptor body) {
+        this.body = body;
     }
 
     public Class<?> getResponseType() {
@@ -160,6 +168,7 @@ public class MethodDescriptor {
         private String description;
         private Class requestType;
         private boolean requestAsCollection;
+        private ParameterDescriptor body;
         private Class responseType;
         private boolean responseAsCollection;
         private String operationId;
@@ -199,6 +208,11 @@ public class MethodDescriptor {
 
         public Builder withRequestType(Class requestType) {
             this.requestType = requestType;
+            return this;
+        }
+
+        public Builder withBody(ParameterDescriptor body ) {
+            this.body = body;
             return this;
         }
 
@@ -292,6 +306,7 @@ public class MethodDescriptor {
             methodDescriptor.setDescription(description);
             methodDescriptor.setRequestType(requestType);
             methodDescriptor.setRequestAsCollection(requestAsCollection);
+            methodDescriptor.setBody(body);
             methodDescriptor.setResponseType(responseType);
             methodDescriptor.setResponseAsCollection(responseAsCollection);
             methodDescriptor.setOperationId(operationId);

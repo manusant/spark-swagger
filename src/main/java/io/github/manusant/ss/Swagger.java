@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manusant.spark.typify.spec.IgnoreSpec;
 import io.github.manusant.ss.factory.DefinitionsFactory;
 import io.github.manusant.ss.factory.ParamsFactory;
@@ -18,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -471,28 +475,70 @@ public class Swagger {
                         // Supply Ignore configurations
                         DefinitionsFactory.ignoreSpec = this.ignoreSpec;
 
-                        if (methodDescriptor.getRequestType() != null) {
-                            // Process fields
-                            Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getRequestType());
-                            for (String key : definitions.keySet()) {
-                                if (!hasDefinition(key)) {
-                                    addDefinition(key, definitions.get(key));
-                                }
+                        if (methodDescriptor.getBody().getModel() != null) {
+
+                            final Model model = methodDescriptor.getBody().getModel();
+                            addDefinition(model.getTitle(), model);
+                            BodyParameter requestBody = new BodyParameter();
+                            requestBody.name(methodDescriptor.getBody().getName());
+                            requestBody.description(methodDescriptor.getBody().getDescription());
+                            requestBody.setRequired(methodDescriptor.getBody().isRequired());
+                            requestBody.setSchema(model);
+                            if (methodDescriptor.getBody().getExample() != null)
+                            {
+//                                requestBody.example("brent/json", methodDescriptor.getBody().getExample());
                             }
+                            op.addParameter(requestBody);
+                        }
+                        else if (methodDescriptor.getRequestType() != null) {
 
                             Model model;
-                            if (definitions.isEmpty()) {
-                                Property property = DefinitionsFactory.createProperty(null, methodDescriptor.getRequestType());
-                                model = new PropertyModelConverter().propertyToModel(property);
-                            } else {
-                                RefModel refModel = new RefModel();
-                                refModel.set$ref(methodDescriptor.getRequestType().getSimpleName());
-                                model = refModel;
+/*                            final ObjectNode exampleJson = methodDescriptor.getBody().getExampleJson();
+                            if (exampleJson != null)
+                            {
+                                final ModelImpl jsonModel = new ModelImpl();
+                                jsonModel.setExample(exampleJson);
+                                jsonModel.setTitle(methodDescriptor.getBody().getObject().getSimpleName());
+
+                                final Map<String, Property> properties = new HashMap<>();
+                                final Iterator<Map.Entry<String, JsonNode>> exampleFields = exampleJson.fields();
+                                while (exampleFields.hasNext())
+                                {
+                                    final Map.Entry<String, JsonNode> field = exampleFields.next();
+                                    final String name = field.getKey().trim();
+                                    if (name == null || name.isEmpty()) continue;
+                                    field.getValue().getNodeType();
+                                    Property property = DefinitionsFactory.createProperty(name, field.getValue());
+                                    properties.put(name, property);
+                                }
+                                jsonModel.setProperties(properties);
+
+                                model = jsonModel;
                             }
+                            else
+                            {*/
+                                // Process fields
+                                Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getRequestType());
+                                for (String key : definitions.keySet()) {
+                                    if (!hasDefinition(key)) {
+                                        addDefinition(key, definitions.get(key));
+                                    }
+                                }
+
+                                if (definitions.isEmpty()) {
+                                    Property property = DefinitionsFactory.createProperty(null, methodDescriptor.getRequestType());
+                                    model = new PropertyModelConverter().propertyToModel(property);
+                                } else {
+                                    RefModel refModel = new RefModel();
+                                    refModel.set$ref(methodDescriptor.getRequestType().getSimpleName());
+                                    model = refModel;
+                                }
+//                            }
 
                             BodyParameter requestBody = new BodyParameter();
-                            requestBody.description("Body object description");
-                            requestBody.setRequired(true);
+                            requestBody.name(methodDescriptor.getBody().getName());
+                            requestBody.description(methodDescriptor.getBody().getDescription());
+                            requestBody.setRequired(methodDescriptor.getBody().isRequired());
                             requestBody.setSchema(model);
                             op.addParameter(requestBody);
                         }
@@ -518,7 +564,8 @@ public class Swagger {
                             Response responseBody = new Response();
                             responseBody.description("successful operation");
                             responseBody.setSchema(property);
-                            op.addResponse("200", responseBody);
+//                            op.addResponse("200", responseBody);
+                            op.addResponse("201", new Response().description("OK"));
 
                         } else {
                             Response responseBody = new Response();

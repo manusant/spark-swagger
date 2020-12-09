@@ -7,6 +7,10 @@ import io.github.manusant.ss.model.properties.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -105,6 +109,66 @@ public class DefinitionsFactory {
             property.set$ref("#/definitions/" + fieldClass.getSimpleName());
             return property;
         }
+    }
+
+    public static Property createProperty(final String name, final JsonNode node) {
+        switch (node.getNodeType()) {
+            case BOOLEAN: {
+                final BooleanProperty prop = new BooleanProperty();
+                if (name != null) prop.setName(name);
+                return prop;
+            }
+            case NUMBER: {
+                final IntegerProperty prop = new IntegerProperty();
+                if (name != null) prop.setName(name);
+                return prop;
+            }
+            case STRING: {
+                final StringProperty prop = new StringProperty();
+                if (name != null) prop.setName(name);
+                return prop;
+            }
+            case ARRAY: {
+                final ArrayProperty arrayProp = new ArrayProperty();
+                if (name != null) arrayProp.setName(name);
+                final Iterator<JsonNode> elements = ((ArrayNode)node).iterator();
+                Property elementProp = null;
+                while (elements.hasNext()) {
+                    if (elementProp == null) {
+                        elementProp = DefinitionsFactory.createProperty(null, elements.next());
+                        continue;
+                    }
+                    if (!(elementProp instanceof ObjectProperty)) break;
+                    final Property nextElementProp = DefinitionsFactory.createProperty(null, elements.next());
+                    if (!(nextElementProp instanceof ObjectProperty)) break;
+                    final ObjectProperty nextObjProp = (ObjectProperty)nextElementProp;
+                    final ObjectProperty objProp = (ObjectProperty)elementProp;
+                    nextObjProp.getProperties().forEach((fieldName, fieldProp)->{
+                        objProp.property(fieldName, fieldProp);
+                    });
+                }
+                arrayProp.setItems(elementProp);
+                return arrayProp;
+            }
+            case OBJECT: {
+                final ObjectProperty objProp = new ObjectProperty();
+                if (name != null) objProp.setName(name);
+                final Iterator<Map.Entry<String, JsonNode>> objFields = node.fields();
+                while (objFields.hasNext()) {
+                    final Map.Entry<String, JsonNode> field = objFields.next();
+                    final String fieldName = field.getKey().trim();
+                    if (fieldName == null || fieldName.isEmpty()) continue;
+                    final Property fieldProp = DefinitionsFactory.createProperty(fieldName, field.getValue());
+                    objProp.property(fieldName, fieldProp);
+                }
+                return objProp;
+            }
+            case BINARY:
+            case MISSING:
+            case NULL:
+            case POJO:
+        }
+        throw new IllegalArgumentException("Unsupported JsonNode type (" +node.getNodeType() +") - " +node.toString());
     }
 
     private static boolean isRef(Class<?> fieldClass) {
