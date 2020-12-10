@@ -514,7 +514,14 @@ public class Swagger {
                             op.addParameter(requestBody);
                         }
 
-                        if (methodDescriptor.getResponseType() != null) {
+                        final Map<String, Response> responses = methodDescriptor.getResponses();
+                        if (responses != null && !responses.isEmpty()) {
+
+                            responses.forEach((code, response)->{
+                                op.addResponse(code, response);
+                            });
+                        }
+                        else if (methodDescriptor.getResponseType() != null) {
                             // Process fields
                             Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getResponseType());
                             for (String key : definitions.keySet()) {
@@ -535,8 +542,7 @@ public class Swagger {
                             Response responseBody = new Response();
                             responseBody.description("successful operation");
                             responseBody.setSchema(property);
-//                            op.addResponse("200", responseBody);
-                            op.addResponse("201", new Response().description("OK"));
+                            op.addResponse("200", responseBody);
 
                         } else {
                             Response responseBody = new Response();
