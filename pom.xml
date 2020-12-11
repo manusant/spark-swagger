@@ -58,24 +58,12 @@
         <jacoco.api.version>0.7.6.201602180812</jacoco.api.version>
     </properties>
 
-    <!-- This will cause the deploy phase to publish the artifact(s) to the TMX repo. -->
     <distributionManagement>
-      <repository>
-        <id>threatmetrix-release</id>
-        <url>https://rpms.cd.sac.int.threatmetrix.com/nexus/content/repositories/threatmetrix-release</url>
-        <releases>
-          <enabled>true</enabled>
-          <updatePolicy>always</updatePolicy>
-        </releases>
-      </repository>
-      <snapshotRepository>
-        <id>threatmetrix-snapshot</id>
-        <url>https://rpms.cd.sac.int.threatmetrix.com/nexus/content/repositories/threatmetrix-snapshot</url>
-        <snapshots>
-          <enabled>true</enabled>
-          <updatePolicy>always</updatePolicy>
-        </snapshots>
-      </snapshotRepository>
+        <repository>
+            <id>github</id>
+            <name>Github OSS Packages</name>
+            <url>https://maven.pkg.github.com/manusant/spark-swagger</url>
+        </repository>
     </distributionManagement>
 
     <dependencies>
