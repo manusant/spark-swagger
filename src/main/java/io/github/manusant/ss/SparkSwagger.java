@@ -118,6 +118,7 @@ public class SparkSwagger {
     }
 
     public ApiEndpoint getEndpoint(final String path) {
+        if (swagger.getApiEndpoints() == null) return null;
         for (final ApiEndpoint ep : swagger.getApiEndpoints()) {
             if (path.equals(ep.getEndpointDescriptor().getPath())) return ep;
         }
