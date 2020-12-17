@@ -117,10 +117,10 @@ public class SparkSwagger {
         new SwaggerHammer().prepareUi(config, swagger);
     }
 
-    public ApiEndpoint getEndpoint(final String path) {
+    public ApiEndpoint getEndpoint(final String name) {
         if (swagger.getApiEndpoints() == null) return null;
         for (final ApiEndpoint ep : swagger.getApiEndpoints()) {
-            if (path.equals(ep.getEndpointDescriptor().getPath())) return ep;
+            if (name.equals(ep.getEndpointDescriptor().getTag().getName())) return ep;
         }
         return null;
     }

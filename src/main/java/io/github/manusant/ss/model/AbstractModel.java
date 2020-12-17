@@ -11,7 +11,7 @@ public abstract class AbstractModel implements Model {
     private ExternalDocs externalDocs;
     private String reference;
     private String title;
-    private Class<?> classType;
+    private Class<?> typeClass;
     private Map<String, Object> vendorExtensions = new LinkedHashMap<String, Object>();
     private Xml xml;
 
@@ -35,13 +35,13 @@ public abstract class AbstractModel implements Model {
     }
 
     @Override
-    public Class<?> getClassType() {
-        return classType;
+    public Class<?> getTypeClass() {
+        return typeClass;
     }
 
     @Override
-    public void setClassType(Class<?> classType) {
-        this.classType = classType;
+    public void setTypeClass(Class<?> typeClass) {
+        this.typeClass = typeClass;
     }
 
     @JsonAnyGetter
@@ -65,7 +65,7 @@ public abstract class AbstractModel implements Model {
         cloned.externalDocs = this.externalDocs;
         cloned.reference = reference;
         cloned.title = title;
-        cloned.classType = classType;
+        cloned.typeClass = typeClass;
         if (vendorExtensions == null) {
             cloned.vendorExtensions = vendorExtensions;
         } else {
@@ -96,6 +96,8 @@ public abstract class AbstractModel implements Model {
                 + ((reference == null) ? 0 : reference.hashCode());
         result = prime * result
                 + ((title == null) ? 0 : title.hashCode());
+        result = prime * result
+                + ((typeClass == null) ? 0 : typeClass.hashCode());
         result = prime * result
                 + ((xml == null) ? 0 : xml.hashCode());
         return result;
@@ -134,11 +136,11 @@ public abstract class AbstractModel implements Model {
         } else if (!title.equals(other.title)) {
             return false;
         }
-        if (classType == null) {
-            if (other.classType != null) {
+        if (typeClass == null) {
+            if (other.typeClass != null) {
                 return false;
             }
-        } else if (!classType.equals(other.classType)) {
+        } else if (!typeClass.equals(other.typeClass)) {
             return false;
         }
         if (reference == null) {

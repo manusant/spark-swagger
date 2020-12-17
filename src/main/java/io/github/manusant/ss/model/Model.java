@@ -27,9 +27,9 @@ public interface Model {
 
     void setReference(String reference);
 
-    Class<?> getClassType();
+    Class<?> getTypeClass();
 
-    void setClassType(Class<?> classType);
+    void setTypeClass(Class<?> typeClass);
 
     Object clone();
 

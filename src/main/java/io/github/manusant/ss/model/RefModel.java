@@ -17,7 +17,7 @@ public class RefModel implements Model {
     private Map<String, Property> properties;
     private Object example;
     private String title;
-    private Class<?> classType;
+    private Class<?> typeClass;
 
     public RefModel() {
     }
@@ -44,13 +44,13 @@ public class RefModel implements Model {
     }
 
     @Override
-    public Class<?> getClassType() {
-        return classType;
+    public Class<?> getTypeClass() {
+        return typeClass;
     }
 
     @Override
-    public void setClassType(Class<?> classType) {
-        this.classType = classType;
+    public void setTypeClass(Class<?> typeClass) {
+        this.typeClass = typeClass;
     }
 
     // not allowed in a $ref
@@ -115,7 +115,7 @@ public class RefModel implements Model {
         cloned.properties = this.properties;
         cloned.example = this.example;
         cloned.title = this.title;
-        cloned.classType = this.classType;
+        cloned.typeClass = this.typeClass;
         return cloned;
     }
 
@@ -131,6 +131,10 @@ public class RefModel implements Model {
         int result = 1;
         result = prime * result
                 + ((description == null) ? 0 : description.hashCode());
+        result = prime * result
+                + ((title == null) ? 0 : title.hashCode());
+        result = prime * result
+                + ((typeClass == null) ? 0 : typeClass.hashCode());
         result = prime * result + ((example == null) ? 0 : example.hashCode());
         result = prime * result
                 + ((externalDocs == null) ? 0 : externalDocs.hashCode());
@@ -194,11 +198,11 @@ public class RefModel implements Model {
         } else if (!title.equals(other.title)) {
             return false;
         }
-        if (classType == null) {
-            if (other.classType != null) {
+        if (typeClass == null) {
+            if (other.typeClass != null) {
                 return false;
             }
-        } else if (!classType.equals(other.classType)) {
+        } else if (!typeClass.equals(other.typeClass)) {
             return false;
         }
         return true;
