@@ -168,7 +168,7 @@ public class DefinitionsFactory {
             case NULL:
             case POJO:
         }
-        throw new IllegalArgumentException("Unsupported JsonNode type (" +node.getNodeType() +") - " +node.toString());
+        return null;
     }
 
     private static boolean isRef(Class<?> fieldClass) {

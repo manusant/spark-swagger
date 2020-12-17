@@ -11,6 +11,7 @@ public abstract class AbstractModel implements Model {
     private ExternalDocs externalDocs;
     private String reference;
     private String title;
+    private Class<?> classType;
     private Map<String, Object> vendorExtensions = new LinkedHashMap<String, Object>();
     private Xml xml;
 
@@ -31,6 +32,16 @@ public abstract class AbstractModel implements Model {
     @Override
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    @Override
+    public Class<?> getClassType() {
+        return classType;
+    }
+
+    @Override
+    public void setClassType(Class<?> classType) {
+        this.classType = classType;
     }
 
     @JsonAnyGetter
@@ -54,6 +65,7 @@ public abstract class AbstractModel implements Model {
         cloned.externalDocs = this.externalDocs;
         cloned.reference = reference;
         cloned.title = title;
+        cloned.classType = classType;
         if (vendorExtensions == null) {
             cloned.vendorExtensions = vendorExtensions;
         } else {
@@ -120,6 +132,13 @@ public abstract class AbstractModel implements Model {
                 return false;
             }
         } else if (!title.equals(other.title)) {
+            return false;
+        }
+        if (classType == null) {
+            if (other.classType != null) {
+                return false;
+            }
+        } else if (!classType.equals(other.classType)) {
             return false;
         }
         if (reference == null) {

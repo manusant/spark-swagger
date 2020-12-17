@@ -147,6 +147,7 @@ public class PropertyModelConverter {
             RefProperty ref = (RefProperty) property;
             RefModel refModel = new RefModel(ref.get$ref());
             refModel.setTitle(title);
+            refModel.setExample(property.getExample());
             return refModel;
         }
 

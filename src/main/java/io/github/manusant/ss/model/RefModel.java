@@ -17,6 +17,7 @@ public class RefModel implements Model {
     private Map<String, Property> properties;
     private Object example;
     private String title;
+    private Class<?> classType;
 
     public RefModel() {
     }
@@ -40,6 +41,16 @@ public class RefModel implements Model {
     @Override
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    @Override
+    public Class<?> getClassType() {
+        return classType;
+    }
+
+    @Override
+    public void setClassType(Class<?> classType) {
+        this.classType = classType;
     }
 
     // not allowed in a $ref
@@ -103,7 +114,8 @@ public class RefModel implements Model {
         cloned.description = this.description;
         cloned.properties = this.properties;
         cloned.example = this.example;
-
+        cloned.title = this.title;
+        cloned.classType = this.classType;
         return cloned;
     }
 
@@ -173,6 +185,20 @@ public class RefModel implements Model {
                 return false;
             }
         } else if (!genericRef.equals(other.genericRef)) {
+            return false;
+        }
+        if (title == null) {
+            if (other.title != null) {
+                return false;
+            }
+        } else if (!title.equals(other.title)) {
+            return false;
+        }
+        if (classType == null) {
+            if (other.classType != null) {
+                return false;
+            }
+        } else if (!classType.equals(other.classType)) {
             return false;
         }
         return true;

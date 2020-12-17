@@ -480,18 +480,6 @@ public class Swagger {
                         final ParameterDescriptor methodBody = methodDescriptor.getBody();
                         if (methodBody != null && methodBody.getModel() != null) {
                             final Model model = methodBody.getModel();
-
-                            final Map<String, Property> properties = model.getProperties();
-                            if (properties != null) {
-System.out.println("Method body model properties: " +properties);
-                                properties.forEach((defKey, property)->{
-                                    if (!hasDefinition(defKey)) {
-final Model propModel = new PropertyModelConverter().propertyToModel(property);
-System.out.println("ADDING DEF - method body model->model.properties[" +defKey +"]->model. Src prop: " +property.getTitle() +" " +property.getName() +" " +property.getType() +" " +property +" def model: " +propModel.getTitle() +" " +propModel.getProperties() +" " +propModel);
-//                                      addDefinition(defKey, new PropertyModelConverter().propertyToModel(property));
-                                    }
-                                });
-                            }
 System.out.println("**ADDING DEF - method body model: " +model.getTitle());
                             addDefinition(model.getTitle(), model);
                             BodyParameter requestBody = new BodyParameter();
@@ -537,25 +525,37 @@ System.out.println("**SETTING body schema from model generated from request type
 
                             responses.forEach((code, response)->{
 
-                                if (response.getSchema() != null) {
-                                    final Property resSchema = response.getSchema();
-                                    final Model resModel = new PropertyModelConverter().propertyToModel(resSchema);
+                                if (response.getResponseSchema() != null) {
+                                    final Model resModel = response.getResponseSchema();
+//System.out.println("**ADDING DEF Response " +code +" schema prop " +resSchema.getTitle() +" " +resSchema.getName() +" " +resSchema.getType() +" " +resSchema +" model: " +resModel.getTitle() +" " +resModel.getProperties() +" " +resModel);
+System.out.println("**ADDING DEF Response " +code +" model: " +resModel.getTitle() +" " +resModel.getProperties() +" " +resModel);
+                                    addDefinition(resModel.getTitle(), resModel);
+                                    response.setSchema(new PropertyModelConverter().modelToProperty(resModel));
 
-                                    final Map<String, Property> properties = resModel.getProperties();
-                                    if (properties != null) {
-                                        properties.forEach((defKey, property)->{
-                                            if (!hasDefinition(defKey)) {
-                                                final Model propModel = new PropertyModelConverter().propertyToModel(property);
-System.out.println("ADDING DEF Response " +code +" def " +defKey +" prop: " +property.getTitle() +" " +property.getName() +" " +property.getType() +" " +property +" model: " +propModel.getTitle() +" " +propModel.getProperties() +" " +propModel);
-//                                                addDefinition(defKey, new PropertyModelConverter().propertyToModel(property));
+                                    if (resModel.getClassType() != null)
+                                    {
+                                        final Map<String, Model> definitions = DefinitionsFactory.create(resModel.getClassType());
+                                        definitions.forEach((defKey, defModel)->{
+
+                                            // If model title set, use it for the name in case it differs from the
+                                            // actual class name.
+                                            final String keyToUse = defKey.equals(resModel.getClassType().getSimpleName())?
+                                                    (resModel.getTitle() != null? resModel.getTitle() : defKey) :
+                                                    defKey;
+
+                                            if (!hasDefinition(keyToUse)) {
+                                                addDefinition(keyToUse, defModel);
                                             }
                                         });
                                     }
-System.out.println("**ADDING DEF Response " +code +" schema prop " +resSchema.getTitle() +" " +resSchema.getName() +" " +resSchema.getType() +" " +resSchema +" model: " +resModel.getTitle() +" " +resModel.getProperties() +" " +resModel);
-                                    addDefinition(resSchema.getTitle(), resModel);
                                 }
-//                                else if (response.getExamples() != null) {
-                                if (response.getExamples() != null) {
+                                else if (response.getSchema() != null) {
+                                    final Property resProp = response.getSchema();
+                                    final Model resModel = new PropertyModelConverter().propertyToModel(resProp);
+                                    addDefinition(resProp.getTitle(), resModel);
+                                    response.setResponseSchema(resModel);
+                                }
+                                else if (response.getExamples() != null) {
 
                                     response.getExamples().forEach((exKey, example)->{
 
@@ -563,8 +563,8 @@ System.out.println("**ADDING DEF Response " +code +" schema prop " +resSchema.ge
 System.out.println("Response example " +example +" class " +example.getClass() +" defs " +definitions);
                                         definitions.forEach((defKey, defModel)->{
                                             if (!hasDefinition(defKey)) {
-System.out.println("ADDING DEF Response example def " +defKey +" model " +defModel.getTitle() +" " +defModel.getProperties() +" " +defModel);
-//                                                addDefinition(defKey, defModel);
+System.out.println("**ADDING DEF Response example def " +defKey +" model " +defModel.getTitle() +" " +defModel.getProperties() +" " +defModel);
+                                                addDefinition(defKey, defModel);
                                             }
                                         });
 
@@ -578,20 +578,22 @@ System.out.println("Getting property from ref model that will be created from ex
                                             refModel.set$ref(example.getClass().getSimpleName());
                                             property = new PropertyModelConverter().modelToProperty(refModel);
                                         }
-System.out.println("SETTING response schema from response example property " +property.getTitle() +" " +property.getName() +" " +property.getType() +" " +property);
-//UNCOMMENT WHEN SETTING ABOVE TO else if                                        response.setSchema(property);
+System.out.println("**SETTING response schema from response example property " +property.getTitle() +" " +property.getName() +" " +property.getType() +" " +property);
+                                        property.setExample(example);
+                                        response.setSchema(property);
+                                        response.setResponseSchema(new PropertyModelConverter().propertyToModel(property));
                                     });
                                 }
                                 else if (methodDescriptor.getResponseType() != null) {
-                                    final Property resTypeProp = addResponseType(methodDescriptor.getResponseType());
-                                    response.setSchema(resTypeProp);
+                                    final Model resTypeModel = typeToModel(methodDescriptor.getResponseType());
+                                    response.setResponseSchema(resTypeModel);
                                 }
 
                                 op.addResponse(code, response);
                             });
                         }
                         else if (methodDescriptor.getResponseType() != null) {
-                            final Property property = addResponseType(methodDescriptor.getResponseType());
+                            final Property property = typeToProperty(methodDescriptor.getResponseType());
 
                             Response responseBody = new Response();
                             responseBody.description("successful operation");
@@ -621,24 +623,46 @@ System.out.println("SETTING response schema from response example property " +pr
         }
     }
 
-    private Property addResponseType(final Class<?> resType) {
-        // Process fields
-        final Map<String, Model> definitions = DefinitionsFactory.create(resType);
+    private Model typeToModel(final Class<?> type) {
+        final Map<String, Model> definitions = DefinitionsFactory.create(type);
+System.out.println("Type for model " +type.getSimpleName() +" defs " +definitions);
         for (final String key : definitions.keySet()) {
             if (!hasDefinition(key)) {
+System.out.println("ADDING DEF from type " +type.getSimpleName() +" def " +key +" model: " +definitions.get(key).getTitle() +" "  +definitions.get(key).getProperties() +"  " +definitions.get(key));
+//                addDefinition(key, definitions.get(key));
+            }
+        }
+
+        final Model model;
+        if (definitions.isEmpty()) {
+            Property property = DefinitionsFactory.createProperty(null, type);
+            model = new PropertyModelConverter().propertyToModel(property);
+        } else {
+            final RefModel refModel = new RefModel();
+            refModel.set$ref(type.getSimpleName());
+            model = refModel;
+        }
+        return model;
+    }
+
+    private Property typeToProperty(final Class<?> type) {
+        final Map<String, Model> definitions = DefinitionsFactory.create(type);
+System.out.println("Type for property " +type.getSimpleName() +" defs " +definitions);
+        for (final String key : definitions.keySet()) {
+            if (!hasDefinition(key)) {
+System.out.println("**ADDING DEF from type " +type.getSimpleName() +" def " +key +" model: " +definitions.get(key).getTitle() +" "  +definitions.get(key).getProperties() +"  " +definitions.get(key));
                 addDefinition(key, definitions.get(key));
             }
         }
 
         final Property property;
         if (definitions.isEmpty()) {
-            property = DefinitionsFactory.createProperty(null, resType);
+            property = DefinitionsFactory.createProperty(null, type);
         } else {
             final RefModel refModel = new RefModel();
-            refModel.set$ref(resType.getSimpleName());
+            refModel.set$ref(type.getSimpleName());
             property = new PropertyModelConverter().modelToProperty(refModel);
         }
-
         return property;
     }
 
