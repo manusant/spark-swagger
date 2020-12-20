@@ -59,6 +59,7 @@ public class EndpointDescriptor {
     }
 
     public static final class Builder {
+        private String name;
         private String path;
         private String description;
         private ExternalDocs externalDoc;
@@ -68,6 +69,11 @@ public class EndpointDescriptor {
 
         public static Builder newBuilder() {
             return new Builder();
+        }
+
+        public Builder withName(String name) {
+            this.name = name;
+            return this;
         }
 
         public Builder withPath(String path) {
@@ -85,7 +91,8 @@ public class EndpointDescriptor {
             return this;
         }
 
-        private String getTag() {
+        private String getName() {
+            if (name != null) return name;
             return path.contains("/") ? path.substring(1) : path;
         }
 
@@ -93,7 +100,7 @@ public class EndpointDescriptor {
             EndpointDescriptor endpointDescriptor = new EndpointDescriptor();
             endpointDescriptor.setPath(path);
             endpointDescriptor.setTag(Tag.newBuilder()
-                    .withName(getTag())
+                    .withName(getName())
                     .withDescription(description)
                     .withExternalDocs(externalDoc)
                     .build());

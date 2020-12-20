@@ -103,9 +103,8 @@ public class SparkSwagger {
         return new SparkSwagger(spark, confPath, null);
     }
 
-    public SparkSwagger version(final String version) {
-        this.version = version;
-        return this;
+    public static SparkSwagger of(final Service spark, final String confPath, final String version) {
+        return new SparkSwagger(spark, confPath, version);
     }
 
     public SparkSwagger ignores(Supplier<IgnoreSpec> confSupplier) {
@@ -118,10 +117,22 @@ public class SparkSwagger {
         new SwaggerHammer().prepareUi(config, swagger);
     }
 
+    public ApiEndpoint getEndpoint(final String name) {
+        if (swagger.getApiEndpoints() == null) return null;
+        for (final ApiEndpoint ep : swagger.getApiEndpoints()) {
+            if (name.equals(ep.getEndpointDescriptor().getTag().getName())) return ep;
+        }
+        return null;
+    }
+
+    public ApiEndpoint endpoint(final EndpointDescriptor.Builder descriptorBuilder) {
+        return endpoint(descriptorBuilder, null);
+    }
+
     public ApiEndpoint endpoint(final EndpointDescriptor.Builder descriptorBuilder, final Filter filter) {
         Optional.ofNullable(apiPath).orElseThrow(() -> new IllegalStateException("API Path must be specified in order to build REST endpoint"));
         EndpointDescriptor descriptor = descriptorBuilder.build();
-        spark.before(apiPath + descriptor.getPath() + "/*", filter);
+        if (filter != null) spark.before(apiPath + descriptor.getPath() + "/*", filter);
         ApiEndpoint apiEndpoint = new ApiEndpoint(this, descriptor);
         this.swagger.addApiEndpoint(apiEndpoint);
         return apiEndpoint;
@@ -217,15 +228,17 @@ public class SparkSwagger {
         info.title(infoConfig.getString("title"));
         info.termsOfService(infoConfig.getString("termsOfService"));
 
-        List<String> schemeStrings = Optional.ofNullable(infoConfig.getStringList("schemes")).orElseThrow(() -> new IllegalArgumentException("'spark-swagger.info.schemes' configuration is required"));
-        List<Scheme> schemes = schemeStrings.stream()
-                .filter(s -> Scheme.forValue(s) != null)
-                .map(Scheme::forValue)
-                .collect(Collectors.toList());
-        if (schemes.isEmpty()) {
-            throw new IllegalArgumentException("At least one Scheme mus be specified. Use 'spark-swagger.info.schemes' property. spark-swagger.info.schemes =[\"HTTP\"]");
+        if (infoConfig.hasPath("schemes")) {
+            List<String> schemeStrings = Optional.ofNullable(infoConfig.getStringList("schemes")).orElseThrow(() -> new IllegalArgumentException("'spark-swagger.info.schemes' configuration is required"));
+            List<Scheme> schemes = schemeStrings.stream()
+                    .filter(s -> Scheme.forValue(s) != null)
+                    .map(Scheme::forValue)
+                    .collect(Collectors.toList());
+            if (schemes.isEmpty()) {
+                throw new IllegalArgumentException("At least one Scheme mus be specified. Use 'spark-swagger.info.schemes' property. spark-swagger.info.schemes =[\"HTTP\"]");
+            }
+            swagger.schemes(schemes);
         }
-        swagger.schemes(schemes);
 
         Config contactConfig = this.config.getConfig("spark-swagger.info.contact");
         if (contactConfig != null) {
@@ -235,12 +248,15 @@ public class SparkSwagger {
             contact.url(contactConfig.getString("url"));
             info.setContact(contact);
         }
-        Config licenseConfig = this.config.getConfig("spark-swagger.info.license");
-        if (licenseConfig != null) {
-            License license = new License();
-            license.name(licenseConfig.getString("name"));
-            license.url(licenseConfig.getString("url"));
-            info.setLicense(license);
+
+        if (this.config.hasPath("spark-swagger.info.license")) {
+            Config licenseConfig = this.config.getConfig("spark-swagger.info.license");
+            if (licenseConfig != null) {
+                License license = new License();
+                license.name(licenseConfig.getString("name"));
+                license.url(licenseConfig.getString("url"));
+                info.setLicense(license);
+            }
         }
         return info;
     }

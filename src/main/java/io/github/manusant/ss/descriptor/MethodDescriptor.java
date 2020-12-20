@@ -16,9 +16,11 @@ public class MethodDescriptor {
 
     private HttpMethod method;
     private String path;
+    private String summary;
     private String description;
     private Class<?> requestType;
     private boolean requestAsCollection;
+    private ParameterDescriptor body;
     private Class<?> responseType;
     private boolean responseAsCollection;
     private String operationId;
@@ -45,6 +47,13 @@ public class MethodDescriptor {
         this.path = path;
     }
 
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
     public String getDescription() {
         return description;
     }
@@ -67,6 +76,13 @@ public class MethodDescriptor {
 
     public void setRequestAsCollection(boolean requestAsCollection) {
         this.requestAsCollection = requestAsCollection;
+    }
+
+    public ParameterDescriptor getBody() {
+        return body;
+    }
+    public void setBody(ParameterDescriptor body) {
+        this.body = body;
     }
 
     public Class<?> getResponseType() {
@@ -148,9 +164,11 @@ public class MethodDescriptor {
     public static final class Builder {
         private HttpMethod method;
         private String path;
+        private String summary;
         private String description;
         private Class requestType;
         private boolean requestAsCollection;
+        private ParameterDescriptor body;
         private Class responseType;
         private boolean responseAsCollection;
         private String operationId;
@@ -178,6 +196,11 @@ public class MethodDescriptor {
             return this;
         }
 
+        public Builder withSummary(String summary) {
+            this.summary = summary;
+            return this;
+        }
+
         public Builder withDescription(String description) {
             this.description = description;
             return this;
@@ -185,6 +208,11 @@ public class MethodDescriptor {
 
         public Builder withRequestType(Class requestType) {
             this.requestType = requestType;
+            return this;
+        }
+
+        public Builder withBody(ParameterDescriptor body ) {
+            this.body = body;
             return this;
         }
 
@@ -274,9 +302,11 @@ public class MethodDescriptor {
             MethodDescriptor methodDescriptor = new MethodDescriptor();
             methodDescriptor.setMethod(method);
             methodDescriptor.setPath(path);
+            methodDescriptor.setSummary(summary);
             methodDescriptor.setDescription(description);
             methodDescriptor.setRequestType(requestType);
             methodDescriptor.setRequestAsCollection(requestAsCollection);
+            methodDescriptor.setBody(body);
             methodDescriptor.setResponseType(responseType);
             methodDescriptor.setResponseAsCollection(responseAsCollection);
             methodDescriptor.setOperationId(operationId);

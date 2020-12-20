@@ -27,6 +27,10 @@ public interface Model {
 
     void setReference(String reference);
 
+    Class<?> getTypeClass();
+
+    void setTypeClass(Class<?> typeClass);
+
     Object clone();
 
     Map<String, Object> getVendorExtensions();

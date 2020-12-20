@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@JsonPropertyOrder({"name", "in", "description", "required", "type", "items", "collectionFormat", "default", "maximum",
+@JsonPropertyOrder({"name", "in", "description", "required", "type", "items", "format", "collectionFormat", "default", "maximum",
         "exclusiveMaximum", "minimum", "exclusiveMinimum", "maxLength", "minLength", "pattern", "maxItems", "minItems",
-        "uniqueItems", "multipleOf"})
+        "uniqueItems", "multipleOf", "example"})
 public abstract class AbstractSerializableParameter<T extends AbstractSerializableParameter<T>> extends AbstractParameter implements SerializableParameter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSerializableParameter.class);
     protected String type;
@@ -387,6 +387,11 @@ public abstract class AbstractSerializableParameter<T extends AbstractSerializab
     }
 
     @JsonProperty("x-example")
+    public Object getXExample() {
+        return getExample();
+    }
+
+    @JsonProperty("example")
     public Object getExample() {
         if (example == null) {
             return null;

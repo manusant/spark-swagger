@@ -119,6 +119,7 @@ public class ParamsFactory {
         parameter.setName(parameterDescriptor.getName());
         parameter.setDescription(parameterDescriptor.getDescription());
         parameter.setPattern(parameterDescriptor.getPattern());
+        parameter.setRequired(parameterDescriptor.isRequired());
         parameter.setExample(parameterDescriptor.getExample());
         parameter.setAllowEmptyValue(parameterDescriptor.getAllowEmptyValue());
         parameter.setDefaultValue(parameterDescriptor.getDefaultValue());

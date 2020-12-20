@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.github.manusant.spark.typify.spec.IgnoreSpec;
+import io.github.manusant.ss.descriptor.ParameterDescriptor;
 import io.github.manusant.ss.factory.DefinitionsFactory;
 import io.github.manusant.ss.factory.ParamsFactory;
 import io.github.manusant.ss.model.*;
@@ -386,6 +387,7 @@ public class Swagger {
     }
 
     public void addDefinition(String key, Model model) {
+        if (key == null) return;
         if (this.definitions == null) {
             this.definitions = new LinkedHashMap<String, Model>();
         }
@@ -462,13 +464,31 @@ public class Swagger {
                         op.tag(endpoint.getEndpointDescriptor().getTag().getName());
                         op.description(methodDescriptor.getDescription());
 
+                        if (methodDescriptor.getSummary() != null) op.summary(methodDescriptor.getSummary());
+                        if (methodDescriptor.getOperationId() != null) op.operationId(methodDescriptor.getOperationId());
+
                         List<Parameter> parameters = ParamsFactory.create(methodDescriptor.getPath(), methodDescriptor.getParameters());
                         op.setParameters(parameters);
 
                         // Supply Ignore configurations
                         DefinitionsFactory.ignoreSpec = this.ignoreSpec;
 
-                        if (methodDescriptor.getRequestType() != null) {
+                        final ParameterDescriptor methodBody = methodDescriptor.getBody();
+                        if (methodBody != null && methodBody.getModel() != null) {
+                            final Model model = methodBody.getModel();
+                            addDefinition(model.getTitle(), model);
+                            BodyParameter requestBody = new BodyParameter();
+                            requestBody.name(methodBody.getName());
+                            requestBody.description(methodBody.getDescription());
+                            requestBody.setRequired(methodBody.isRequired());
+                            requestBody.setSchema(model);
+                            op.addParameter(requestBody);
+
+                            if (methodDescriptor.getRequestType() != null) {
+                                addDefinitionsForType(model.getTitle(), methodDescriptor.getRequestType());
+                            }
+                        }
+                        else if (methodDescriptor.getRequestType() != null) {
                             // Process fields
                             Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getRequestType());
                             for (String key : definitions.keySet()) {
@@ -488,33 +508,75 @@ public class Swagger {
                             }
 
                             BodyParameter requestBody = new BodyParameter();
-                            requestBody.description("Body object description");
-                            requestBody.setRequired(true);
+                            requestBody.name(methodBody != null? methodBody.getName() : "body");
+                            requestBody.description(methodBody != null? methodBody.getDescription() : "Body object description");
+                            requestBody.setRequired(methodBody != null? methodBody.isRequired() : true);
                             requestBody.setSchema(model);
                             op.addParameter(requestBody);
                         }
 
-                        if (methodDescriptor.getResponseType() != null) {
-                            // Process fields
-                            Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getResponseType());
-                            for (String key : definitions.keySet()) {
-                                if (!hasDefinition(key)) {
-                                    addDefinition(key, definitions.get(key));
-                                }
-                            }
+                        final Map<String, Response> responses = methodDescriptor.getResponses();
+                        if (responses != null && !responses.isEmpty()) {
 
-                            Property property;
-                            if (definitions.isEmpty()) {
-                                property = DefinitionsFactory.createProperty(null, methodDescriptor.getResponseType());
-                            } else {
-                                RefModel refModel = new RefModel();
-                                refModel.set$ref(methodDescriptor.getResponseType().getSimpleName());
-                                property = new PropertyModelConverter().modelToProperty(refModel);
-                            }
+                            responses.forEach((code, response)->{
+
+                                if (response.getResponseSchema() != null) {
+                                    final Model resModel = response.getResponseSchema();
+                                    addDefinition(resModel.getTitle(), resModel);
+
+                                    if (resModel.getTypeClass() != null) {
+                                        addDefinitionsForType(resModel.getTitle(), resModel.getTypeClass());
+                                    }
+                                }
+                                else if (response.getSchema() != null) {
+                                    final Property resProp = response.getSchema();
+                                    final Model resModel = new PropertyModelConverter().propertyToModel(resProp);
+                                    response.setResponseSchema(resModel);
+                                    addDefinition(resProp.getTitle(), resModel);
+
+                                    if (resModel.getTypeClass() != null) {
+                                        addDefinitionsForType(resModel.getTitle(), resModel.getTypeClass());
+                                    }
+                                }
+                                else if (response.getExamples() != null) {
+
+                                    response.getExamples().forEach((exKey, example)->{
+
+                                        final Map<String, Model> definitions = DefinitionsFactory.create(example.getClass());
+                                        definitions.forEach((defKey, defModel)->{
+                                            if (!hasDefinition(defKey)) {
+                                                addDefinition(defKey, defModel);
+                                            }
+                                        });
+
+                                        final Property property;
+                                        if (definitions.isEmpty()) {
+                                            property = DefinitionsFactory.createProperty(null, example.getClass());
+                                        } else {
+                                            RefModel refModel = new RefModel();
+                                            refModel.set$ref(example.getClass().getSimpleName());
+                                            property = new PropertyModelConverter().modelToProperty(refModel);
+                                        }
+                                        property.setExample(example);
+                                        response.setSchema(property);
+                                        response.setResponseSchema(new PropertyModelConverter().propertyToModel(property));
+                                    });
+                                }
+                                else if (methodDescriptor.getResponseType() != null) {
+                                    final Model resTypeModel = typeToModel(methodDescriptor.getResponseType());
+                                    response.setResponseSchema(resTypeModel);
+                                }
+
+                                op.addResponse(code, response);
+                            });
+                        }
+                        else if (methodDescriptor.getResponseType() != null) {
+                            final Property property = typeToProperty(methodDescriptor.getResponseType());
 
                             Response responseBody = new Response();
                             responseBody.description("successful operation");
                             responseBody.setSchema(property);
+                            responseBody.setResponseSchema(new PropertyModelConverter().propertyToModel(property));
                             op.addResponse("200", responseBody);
 
                         } else {
@@ -538,6 +600,55 @@ public class Swagger {
         } else {
             LOGGER.debug("Spark-Swagger: No metadata to parse. Please check your SparkSwagger configurations and Endpoints Resolver");
         }
+    }
+
+    private Map<String, Model> addDefinitionsForType(final String typeName, final Class<?> type)
+    {
+        final Map<String, Model> definitions = DefinitionsFactory.create(type);
+        definitions.forEach((defKey, defModel)->{
+
+            // If model title set, use it for the name in case it differs from the
+            // actual class name. This allows the documentation to have different
+            // names for the models, that might be more useful for the user than the
+            // actual names in the code.
+            final String keyToUse = defKey.equals(type.getSimpleName())?
+                    (typeName != null? typeName : defKey) :
+                    defKey;
+
+            if (!hasDefinition(keyToUse)) {
+                addDefinition(keyToUse, defModel);
+            }
+        });
+        return definitions;
+    }
+
+    private Model typeToModel(final Class<?> type) {
+        final Map<String, Model> definitions = addDefinitionsForType(null, type);
+
+        final Model model;
+        if (definitions.isEmpty()) {
+            Property property = DefinitionsFactory.createProperty(null, type);
+            model = new PropertyModelConverter().propertyToModel(property);
+        } else {
+            final RefModel refModel = new RefModel();
+            refModel.set$ref(type.getSimpleName());
+            model = refModel;
+        }
+        return model;
+    }
+
+    private Property typeToProperty(final Class<?> type) {
+        final Map<String, Model> definitions = addDefinitionsForType(null, type);
+
+        final Property property;
+        if (definitions.isEmpty()) {
+            property = DefinitionsFactory.createProperty(null, type);
+        } else {
+            final RefModel refModel = new RefModel();
+            refModel.set$ref(type.getSimpleName());
+            property = new PropertyModelConverter().modelToProperty(refModel);
+        }
+        return property;
     }
 
     private void addOperation(String pathStr, HttpMethod method, Operation op) {

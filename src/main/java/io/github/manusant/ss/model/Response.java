@@ -73,23 +73,23 @@ public class Response {
         return this;
     }
 
-/*
+
     public Model getResponseSchema() {
         if(schemaAsModel == null && schemaAsProperty != null) {
             return new PropertyModelConverter().propertyToModel(schemaAsProperty);
         }
         return schemaAsModel;
     }
-*/
 
-/*    public void setResponseSchema(Model model) {
+
+    public void setResponseSchema(Model model) {
         this.schemaAsModel = model;
-    }*/
+    }
 
-    /*public Response responseSchema(Model model) {
+    public Response responseSchema(Model model) {
         this.setResponseSchema(model);
         return this;
-    }*/
+    }
 
     public Map<String, Object> getExamples() {
         return this.examples;

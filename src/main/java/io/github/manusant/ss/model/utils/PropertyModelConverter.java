@@ -134,6 +134,7 @@ public class PropertyModelConverter {
         String type = property.getType();
         String format = property.getFormat();
         String example = null;
+        String title = property.getTitle();
 
         /*Object obj = property.getExample();
         if (obj != null) {
@@ -145,6 +146,8 @@ public class PropertyModelConverter {
         if(property instanceof RefProperty){
             RefProperty ref = (RefProperty) property;
             RefModel refModel = new RefModel(ref.get$ref());
+            refModel.setTitle(title);
+            refModel.setExample(property.getExample());
             return refModel;
         }
 
@@ -189,6 +192,7 @@ public class PropertyModelConverter {
 
         model.setDescription(description);
         model.setExample(property.getExample());//example
+        model.setTitle(title);
         model.setName(name);
         model.setXml(xml);
         model.setType(type);

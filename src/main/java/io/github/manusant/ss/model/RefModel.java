@@ -17,6 +17,7 @@ public class RefModel implements Model {
     private Map<String, Property> properties;
     private Object example;
     private String title;
+    private Class<?> typeClass;
 
     public RefModel() {
     }
@@ -40,6 +41,16 @@ public class RefModel implements Model {
     @Override
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    @Override
+    public Class<?> getTypeClass() {
+        return typeClass;
+    }
+
+    @Override
+    public void setTypeClass(Class<?> typeClass) {
+        this.typeClass = typeClass;
     }
 
     // not allowed in a $ref
@@ -103,7 +114,8 @@ public class RefModel implements Model {
         cloned.description = this.description;
         cloned.properties = this.properties;
         cloned.example = this.example;
-
+        cloned.title = this.title;
+        cloned.typeClass = this.typeClass;
         return cloned;
     }
 
@@ -119,6 +131,10 @@ public class RefModel implements Model {
         int result = 1;
         result = prime * result
                 + ((description == null) ? 0 : description.hashCode());
+        result = prime * result
+                + ((title == null) ? 0 : title.hashCode());
+        result = prime * result
+                + ((typeClass == null) ? 0 : typeClass.hashCode());
         result = prime * result + ((example == null) ? 0 : example.hashCode());
         result = prime * result
                 + ((externalDocs == null) ? 0 : externalDocs.hashCode());
@@ -173,6 +189,20 @@ public class RefModel implements Model {
                 return false;
             }
         } else if (!genericRef.equals(other.genericRef)) {
+            return false;
+        }
+        if (title == null) {
+            if (other.title != null) {
+                return false;
+            }
+        } else if (!title.equals(other.title)) {
+            return false;
+        }
+        if (typeClass == null) {
+            if (other.typeClass != null) {
+                return false;
+            }
+        } else if (!typeClass.equals(other.typeClass)) {
             return false;
         }
         return true;
