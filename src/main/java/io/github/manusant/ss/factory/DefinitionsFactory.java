@@ -6,6 +6,7 @@ import io.github.manusant.ss.model.ModelImpl;
 import io.github.manusant.ss.model.properties.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -190,6 +191,7 @@ public class DefinitionsFactory {
                 || fieldClass.equals(String.class)
                 || fieldClass.equals(UUID.class)
                 || fieldClass.isArray()
+                || fieldClass.equals(Object.class)
                 || Collection.class.isAssignableFrom(fieldClass)
                 || File.class.isAssignableFrom(fieldClass)
                 || fieldClass.getCanonicalName().contains("java")
@@ -241,6 +243,6 @@ public class DefinitionsFactory {
             LOGGER.error("Field mapping not supported. ", e);
         }
         // FIXME resolve actual type in strange collection types
-        return String.class;
+        return Object.class;
     }
 }
