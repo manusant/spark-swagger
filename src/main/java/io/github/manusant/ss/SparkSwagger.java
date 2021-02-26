@@ -42,7 +42,7 @@ public class SparkSwagger {
         this(spark, confPath, version, true, true);
     }
 
-    private SparkSwagger(final Service spark, final String confPath, final String version, final boolean configDocRoute, final boolean enableCors) {
+    private SparkSwagger(final Service spark, final String confPath, final String version, final boolean configStaticMapping, final boolean enableCors) {
         this.spark = spark;
         this.version = version;
         this.swagger = new Swagger();
@@ -52,11 +52,15 @@ public class SparkSwagger {
         this.swagger.setExternalDocs(ExternalDocs.newBuilder().build());
         this.swagger.setHost(getHost());
         this.swagger.setInfo(getInfo());
+        configDocRoute(configStaticMapping, enableCors);
+    }
 
+    private void configDocRoute(final boolean configStaticMapping, final boolean enableCors) {
         String uiFolder = SwaggerHammer.getUiFolder(this.apiPath);
         SwaggerHammer.createDir(SwaggerHammer.getSwaggerUiFolder());
         SwaggerHammer.createDir(uiFolder);
-        if (configDocRoute) {
+
+        if (configStaticMapping) {
             // Configure static mapping
             spark.externalStaticFileLocation(uiFolder);
             LOGGER.debug("Spark-Swagger: UI folder deployed at {}", uiFolder);
@@ -112,7 +116,7 @@ public class SparkSwagger {
         return new SparkSwagger(spark, confPath, version);
     }
 
-    public static SparkSwagger of(final Service spark, final String confPath, final String version, final boolean configDocRoute, final boolean enableCors) {
+    public static SparkSwagger of(final Service spark, final String confPath, final String version, final boolean configStaticMapping, final boolean enableCors) {
         return new SparkSwagger(spark, confPath, version, configDocRoute, enableCors);
     }
 
