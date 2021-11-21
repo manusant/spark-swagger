@@ -155,6 +155,7 @@ public class SwaggerHammer {
     }
 
     public static String getUiFolder(String basePath) {
+        if (basePath.isEmpty()) return getSwaggerUiFolder();
         return System.getProperty("java.io.tmpdir") + "/swagger-ui" + (basePath.startsWith("/") ? "" : "/") + basePath + (basePath.endsWith("/") ? "" : "/");
     }
 

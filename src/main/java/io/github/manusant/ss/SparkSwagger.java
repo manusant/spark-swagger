@@ -39,6 +39,10 @@ public class SparkSwagger {
     private String version;
 
     private SparkSwagger(final Service spark, final String confPath, final String version) {
+        this(spark, confPath, version, true, true);
+    }
+
+    private SparkSwagger(final Service spark, final String confPath, final String version, final boolean configStaticMapping, final boolean enableCors) {
         this.spark = spark;
         this.version = version;
         this.swagger = new Swagger();
@@ -48,39 +52,44 @@ public class SparkSwagger {
         this.swagger.setExternalDocs(ExternalDocs.newBuilder().build());
         this.swagger.setHost(getHost());
         this.swagger.setInfo(getInfo());
-        configDocRoute();
+        configDocRoute(configStaticMapping, enableCors);
     }
 
-    private void configDocRoute() {
-        // Configure static mapping
+    private void configDocRoute(final boolean configStaticMapping, final boolean enableCors) {
         String uiFolder = SwaggerHammer.getUiFolder(this.apiPath);
         SwaggerHammer.createDir(SwaggerHammer.getSwaggerUiFolder());
         SwaggerHammer.createDir(uiFolder);
-        spark.externalStaticFileLocation(uiFolder);
-        LOGGER.debug("Spark-Swagger: UI folder deployed at {}", uiFolder);
 
-        // Enable CORS
-        spark.options("/*",
-                (request, response) -> {
+        if (configStaticMapping) {
+            // Configure static mapping
+            spark.externalStaticFileLocation(uiFolder);
+            LOGGER.debug("Spark-Swagger: UI folder deployed at {}", uiFolder);
+        }
 
-                    String accessControlRequestHeaders = request
-                            .headers("Access-Control-Request-Headers");
-                    if (accessControlRequestHeaders != null) {
-                        response.header("Access-Control-Allow-Headers",
-                                accessControlRequestHeaders);
-                    }
+        if (enableCors) {
+            // Enable CORS
+            spark.options("/*",
+                    (request, response) -> {
 
-                    String accessControlRequestMethod = request
-                            .headers("Access-Control-Request-Method");
-                    if (accessControlRequestMethod != null) {
-                        response.header("Access-Control-Allow-Methods",
-                                accessControlRequestMethod);
-                    }
-                    return "OK";
-                });
+                        String accessControlRequestHeaders = request
+                                .headers("Access-Control-Request-Headers");
+                        if (accessControlRequestHeaders != null) {
+                            response.header("Access-Control-Allow-Headers",
+                                    accessControlRequestHeaders);
+                        }
 
-        spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
-        LOGGER.debug("Spark-Swagger: CORS enabled and allow Origin *");
+                        String accessControlRequestMethod = request
+                                .headers("Access-Control-Request-Method");
+                        if (accessControlRequestMethod != null) {
+                            response.header("Access-Control-Allow-Methods",
+                                    accessControlRequestMethod);
+                        }
+                        return "OK";
+                    });
+
+            spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
+            LOGGER.debug("Spark-Swagger: CORS enabled and allow Origin *");
+        }
     }
 
     public String getApiPath() {
@@ -105,6 +114,10 @@ public class SparkSwagger {
 
     public static SparkSwagger of(final Service spark, final String confPath, final String version) {
         return new SparkSwagger(spark, confPath, version);
+    }
+
+    public static SparkSwagger of(final Service spark, final String confPath, final String version, final boolean configStaticMapping, final boolean enableCors) {
+        return new SparkSwagger(spark, confPath, version, configDocRoute, enableCors);
     }
 
     public SparkSwagger ignores(Supplier<IgnoreSpec> confSupplier) {
