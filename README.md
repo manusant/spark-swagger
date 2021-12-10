@@ -1,4 +1,4 @@
-# SparkSwagger  <img src="https://travis-ci.org/manusant/SparkSwagger.svg?branch=master" alt="build:started">
+# SparkSwagger
 Live Documentation for *Spark* (http://sparkjava.com/) applications using *Swagger* (https://swagger.io/) spec.
 
 ### Motivation
