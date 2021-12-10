@@ -27,56 +27,87 @@ Add this entry to your *build.gradle* file
 ```groovy
  repositories {
     maven {
-        url "https://packagecloud.io/manusant/beerRepo/maven2"
+        url "https://maven.pkg.github.com/manusant/spark-swagger"
     }
 }
 ```
 And add the dependency
 ```groovy
-  compile 'com.beerboy.ss:spark-swagger:1.0.0.48'
+  compile 'io.github.manusant:spark-swagger:2.0.2'
 ```
 #### Maven
 Add this to *dependencyManagement* section of your *pom.xml* 
 ```xml
 <repositories>
   <repository>
-    <id>manusant-beerRepo</id>
-    <url>https://packagecloud.io/manusant/beerRepo/maven2</url>
-    <releases>
-      <enabled>true</enabled>
-    </releases>
-    <snapshots>
-      <enabled>true</enabled>
-    </snapshots>
+    <id>github</id>
+    <name>Spark-Swagger Packages</name>
+    <url>https://maven.pkg.github.com/manusant/spark-swagger</url>
   </repository>
 </repositories>
 ```
 And add the dependency
 ```xml
-   <dependency>
-      <groupId>com.beerboy.ss</groupId>
-      <artifactId>spark-swagger</artifactId>
-      <version>1.0.0.48</version>
-   </dependency>
+  <dependency>
+    <groupId>io.github.manusant</groupId>
+    <artifactId>spark-swagger</artifactId>
+    <version>2.0.2</version>
+  </dependency>
 ```
 # Usage
 To use the extension you need to wrap the *Spark* Service instance into a *SparkSwagger* instance. All methods provided by *Spark* remains but new ones was added in order to provide a more modular api.
 
 ## Ignition
-Start Spark and wrap it with SparkSwagger using configurations under "resources/spark-swagger.conf"
+Start Spark and wrap it with SparkSwagger using configurations under "resources/spark-swagger.conf" (default ignition options) 
 ```java
-   Service spark = Service.ignite().port(55555);
-   SparkSwagger.of(spark)
+   Service spark = Service.ignite()
+	.ipAddress("localhost")
+	.port(8081);
+	
+   SparkSwagger.of(spark, Options.defaultOptions().build())
 ```
-Start Spark and wrap it with SparkSwagger using configurations under provided path
+Start Spark and wrap it with SparkSwagger using custom ignition options
 ```java
-   Service spark = Service.ignite().port(55555);
-   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+Service spark = Service.ignite()
+	.ipAddress("localhost")
+	.port(8081);
+
+Options options =  Options.defaultOptions()
+	.confPath("conf/" + SparkSwagger.CONF_FILE_NAME)
+	.version("1.0.2")
+	.build();
+
+SparkSwagger.of(spark, options)
 ```
+### Options
+Option | Description |Default
+--- | --- | ---
+`confPath` | `String`. path for spark-swagger configuration file | resources/spark-swagger.conf
+`version` | `String`. version of the service providing the API | 
+`enableStaticMapping` | `Boolean`. flag to enable or disable static mapping for the generated swagger (UI, doc.json and doc.yaml) | true
+`enableCors` | `Boolean`. flag to enable CORS config | true
 ## Endpoints Binding
 An Interface class named **Endpoint** was introduced in order to facilitate Endpoints modularization. Code below is an Endpoint implementation example.
 ```java
-   public class HammerEndpoint implements Endpoint {
+import io.github.manusant.ss.SparkSwagger;
+import io.github.manusant.ss.annotation.Content;
+import io.github.manusant.ss.demo.model.BackupRequest;
+import io.github.manusant.ss.demo.model.Network;
+import io.github.manusant.ss.model.ContentType;
+import io.github.manusant.ss.rest.Endpoint;
+import io.github.manusant.ss.route.Route;
+import io.github.manusant.ss.route.TypedRoute;
+import lombok.extern.slf4j.Slf4j;
+import spark.Request;
+import spark.Response;
+
+import static io.github.manusant.ss.descriptor.EndpointDescriptor.endpointPath;
+import static io.github.manusant.ss.descriptor.MethodDescriptor.path;
+import static io.github.manusant.ss.rest.RestResponse.badRequest;
+import static io.github.manusant.ss.rest.RestResponse.ok;
+
+@Slf4j
+public class HammerEndpoint implements Endpoint {
 
     private static final String NAME_SPACE = "/hammer";
 
@@ -84,36 +115,45 @@ An Interface class named **Endpoint** was introduced in order to facilitate Endp
     public void bind(final SparkSwagger restApi) {
 
         restApi.endpoint(endpointPath(NAME_SPACE)
-                .withDescription("Hammer REST API exposing all Thor utilities "), (q, a) -> LOGGER.info("Received request for Hammer Rest API"))
+                        .withDescription("Hammer REST API exposing all Thor utilities "), (q, a) -> log.info("Received request for Hammer Rest API"))
 
                 .get(path("/export")
                         .withDescription("Gets the whole Network")
-                        .withResponseType(Network.class), new GsonRoute() {
+                        .withResponseType(Network.class), new Route() {
                     @Override
-                    public Object handleAndTransform(Request request, Response response) {
-                        return ok(response, getNetwork());
+                    public Object onRequest(Request request, Response response) {
+
+                        Network network = Network.builder()
+                                .id("thor_1111")
+                                .name("Thor Network")
+                                .owner("Manuel Santos")
+                                .nodes(10000)
+                                .build();
+
+                        return ok(response, network);
                     }
                 })
 
                 .post(path("/backup")
-                        .withDescription("Trigger Network Backup")
-                        .withRequestType(BackupNetworkRequest.class)
-                        .withGenericResponse(), new TypedGsonRoute<BackupNetworkRequest, Object>() {
+                                .withDescription("Trigger Network Backup")
+                                .withRequestType(BackupRequest.class)
+                                .withGenericResponse(),
+                        new TypedRoute<BackupRequest>() {
 
-                    @Override
-                    public Object handleAndTransform(BackupNetworkRequest body, Request request, Response response) {
-			return badRequest(response, "Backup Name required in order to backup Network Data");
-                    }
-                })
+                            @Content(ContentType.APPLICATION_JSON)
+                            public Object onRequest(BackupRequest body, Request request, Response response) {
+                                return badRequest(response, "Backup Name required in order to backup Network Data");
+                            }
+                        })
 
                 .delete(path("/")
                         .withDescription("Clear Thor network resources")
-                        .withGenericResponse(), new GsonRoute() {
+                        .withGenericResponse(), new Route() {
                     @Override
-                    public Object handleAndTransform(Request request, Response response) {
+                    public Object onRequest(Request request, Response response) {
                         return ok(response, "Thor Store successfully cleared");
                     }
-                })
+                });
     }
 }
 ```
@@ -124,7 +164,7 @@ There are two ways to bind endpoins:
 2 - Via an endpoints resolver using **SparkSwagger.endpoints()** method. An endpoint resolver is anything that can supply endpoint instances. The code below shows a *Guice* (https://github.com/google/guice) impelentation for a resolver.
 ```java
    Service spark = Service.ignite().port(55555);
-   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+   SparkSwagger.of(spark, options)
 	    .endpoints(() ->
 			    ThorModule.getInjector()
 				    .findBindingsByType(TypeLiteral.get(Endpoint.class))
@@ -139,11 +179,25 @@ Another resolver implementation can be a simple collection of endpoint instances
    SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
 	    .endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
 ```
+## Response Type Specification
+**MethodDescriptor** provides functionality to allow you to specify the responce structure (used to generate proper OpenAPI spec and also an example object for the UI) as follows:
+1. **withGenericResponse()** sets the response type as a generic **RestResponse** object
+<img width="522" alt="Screenshot 2021-12-10 at 19 58 47" src="https://user-images.githubusercontent.com/12997676/145634177-b64e65e4-ede2-4731-87c6-b87ff36f6bfb.png">
+
+3. **withResponseType(Class responseType)** sets the type of the response object
+<img width="536" alt="Screenshot 2021-12-10 at 19 59 49" src="https://user-images.githubusercontent.com/12997676/145634284-cef18933-3cf8-468d-bbbd-c778ffbab9b5.png">
+
+5. **withResponseAsCollection(Class itemType)** sets the response as a collection of the specified type
+<img width="478" alt="Screenshot 2021-12-10 at 19 57 59" src="https://user-images.githubusercontent.com/12997676/145634084-4ed3e005-efd7-41f6-86f6-b5196f937d1e.png">
+
+5. **withResponseAsMap(Class itemType)** sets the response as a map of the specified type with string as key
+<img width="614" alt="Screenshot 2021-12-10 at 20 00 40" src="https://user-images.githubusercontent.com/12997676/145634421-0febafa9-986a-4d5e-ad91-e00622831b11.png">
+
 ## Ignore/Exclude Specification
 Ignores are specified via an **IgnoreSpec** . Basically the library can be configured to ignore any field that has one of specified annotations and types or even ignore an entire endpoint matching a specified path. Once ignored the respective field or endpoint is skipped from JSON translation and Swagger documentation. Example of how to configure:
 ```java
    Service spark = Service.ignite().port(55555);
-   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+   SparkSwagger.of(spark, options)
     .ignores(IgnoreSpec.newBuilder().withIgnoreAnnotated(JsonIgnore.class).withIgnoreTypes(Shield.class, GeoPosition.class)::build)
     .endpoints(() -> ...)
 ```
@@ -189,7 +243,7 @@ Two metadata descriptors are provided. **EndpointDescriptor** to describe docume
 To generate the Swagger Spec and UI you need to explicitly call **SparkSwagger.generateDoc()** method. Once you do that, the UI and spec will be generated and published to a "swagger-ui" folder under the temporary directory and then the directory is mapped to be served by Spark as static resouces.
 ```java
    Service spark = Service.ignite().port(55555);
-   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+   SparkSwagger.of(spark, options)
 	    .endpoints(() ->Arrays.asList(new HammerRestApi(),new ShieldRestApi()))
 	    .generateDoc();
 ```
@@ -213,6 +267,7 @@ All configurations related to information goes under the "info" namespace
 Parameter Name | Description
 --- | ---
 `description` | `String`. Service description
+`version` | `String`. Service version
 `title` |`String`, Service name
 `host` |`String`, The host name/Ip address where the service is running
 `docPath` |`String`, Path to access the documentation (Swagger UI)
@@ -268,13 +323,14 @@ spark-swagger {
   docPath = "/doc"
   info {
     description = "API designed to serve all network operations"
-    version = "4.0.0.0.1"
+    version = "1.0.0"
     title = "Thor"
     termsOfService = ""
     schemes = ["HTTP", "HTTPS", "WS", "WSS"]
     project {
       groupId = "com.beerboy.thor"
       artifactId = "thor-hammer"
+      version = "1.0.0"
     }
     contact {
       name = "Example Team"
