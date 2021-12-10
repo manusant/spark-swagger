@@ -52,20 +52,32 @@ public class RestResponse {
     }
 
     public static RestResponse error(spark.Response response, String error) {
-        response.status(400);
+        response.status(500);
         response.body(error);
         return new RestResponse(response);
     }
 
     public static RestResponse badRequest(spark.Response response, String error) {
-        response.status(500);
+        response.status(400);
         response.body(error);
+        return new RestResponse(response);
+    }
+
+    public static RestResponse notFound(spark.Response response, String message) {
+        response.status(404);
+        response.body(message);
         return new RestResponse(response);
     }
 
     public static RestResponse notImplemented(spark.Response response) {
         response.status(501);
         response.body("Request service not implemented yet");
+        return new RestResponse(response);
+    }
+
+    public static RestResponse notImplemented(spark.Response response, String message) {
+        response.status(501);
+        response.body(message);
         return new RestResponse(response);
     }
 }

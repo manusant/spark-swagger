@@ -1,10 +1,8 @@
 package io.github.manusant.ss.descriptor;
 
-import java.util.Optional;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import io.github.manusant.ss.model.Model;
+
+import java.util.Optional;
 
 /**
  * @author manusant

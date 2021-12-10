@@ -1,11 +1,13 @@
 package io.github.manusant.ss.demo.endpoint;
 
-import com.beerboy.spark.typify.route.GsonRoute;
-import com.beerboy.spark.typify.route.TypedGsonRoute;
 import io.github.manusant.ss.SparkSwagger;
+import io.github.manusant.ss.annotation.Content;
 import io.github.manusant.ss.demo.model.BackupRequest;
 import io.github.manusant.ss.demo.model.Network;
+import io.github.manusant.ss.model.ContentType;
 import io.github.manusant.ss.rest.Endpoint;
+import io.github.manusant.ss.route.Route;
+import io.github.manusant.ss.route.TypedRoute;
 import lombok.extern.slf4j.Slf4j;
 import spark.Request;
 import spark.Response;
@@ -24,13 +26,13 @@ public class HammerEndpoint implements Endpoint {
     public void bind(final SparkSwagger restApi) {
 
         restApi.endpoint(endpointPath(NAME_SPACE)
-                .withDescription("Hammer REST API exposing all Thor utilities "), (q, a) -> log.info("Received request for Hammer Rest API"))
+                        .withDescription("Hammer REST API exposing all Thor utilities "), (q, a) -> log.info("Received request for Hammer Rest API"))
 
                 .get(path("/export")
                         .withDescription("Gets the whole Network")
-                        .withResponseType(Network.class), new GsonRoute() {
+                        .withResponseType(Network.class), new Route() {
                     @Override
-                    public Object handleAndTransform(Request request, Response response) {
+                    public Object onRequest(Request request, Response response) {
 
                         Network network = Network.builder()
                                 .id("thor_1111")
@@ -44,21 +46,22 @@ public class HammerEndpoint implements Endpoint {
                 })
 
                 .post(path("/backup")
-                        .withDescription("Trigger Network Backup")
-                        .withRequestType(BackupRequest.class)
-                        .withGenericResponse(), new TypedGsonRoute<BackupRequest, Object>() {
+                                .withDescription("Trigger Network Backup")
+                                .withRequestType(BackupRequest.class)
+                                .withGenericResponse(),
+                        new TypedRoute<BackupRequest>() {
 
-                    @Override
-                    public Object handleAndTransform(BackupRequest body, Request request, Response response) {
-                        return badRequest(response, "Backup Name required in order to backup Network Data");
-                    }
-                })
+                            @Content(ContentType.APPLICATION_JSON)
+                            public Object onRequest(BackupRequest body, Request request, Response response) {
+                                return badRequest(response, "Backup Name required in order to backup Network Data");
+                            }
+                        })
 
                 .delete(path("/")
                         .withDescription("Clear Thor network resources")
-                        .withGenericResponse(), new GsonRoute() {
+                        .withGenericResponse(), new Route() {
                     @Override
-                    public Object handleAndTransform(Request request, Response response) {
+                    public Object onRequest(Request request, Response response) {
                         return ok(response, "Thor Store successfully cleared");
                     }
                 });

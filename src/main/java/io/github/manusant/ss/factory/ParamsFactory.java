@@ -73,25 +73,33 @@ public class ParamsFactory {
     }
 
     public static String formatPath(String pathUri) {
-        StringBuilder formatted = new StringBuilder();
+        if (containsParam(pathUri)) {
+            StringBuilder formatted = new StringBuilder();
 
-        List<String> uriParts = SparkUtils.convertRouteToList(pathUri);
-        for (String uriPart : uriParts) {
-            try {
-                formatted.append("/");
-                if (SparkUtils.isParam(uriPart)) {
-                    final String param = URLDecoder.decode(uriPart, "UTF-8");
-                    final String decodedParam = param.contains(":") ? param.substring(param.indexOf(":") + 1) : param;
-                    formatted.append("{").append(decodedParam).append("}");
-                } else {
-                    formatted.append(uriPart);
+            List<String> uriParts = SparkUtils.convertRouteToList(pathUri);
+            for (String uriPart : uriParts) {
+                try {
+                    formatted.append("/");
+                    if (SparkUtils.isParam(uriPart)) {
+                        final String param = URLDecoder.decode(uriPart, "UTF-8");
+                        final String decodedParam = param.contains(":") ? param.substring(param.indexOf(":") + 1) : param;
+                        formatted.append("{").append(decodedParam).append("}");
+                    } else {
+                        formatted.append(uriPart);
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
             }
+            String path = formatted.toString();
+            return path.isEmpty() ? "/" : path;
+        } else {
+            return pathUri;
         }
-        String path = formatted.toString();
-        return path.isEmpty() ? "/" : path;
+    }
+
+    public static boolean containsParam(String routePart) {
+        return routePart.contains(":");
     }
 
     private static PathParameter toGeneric(String param) {
