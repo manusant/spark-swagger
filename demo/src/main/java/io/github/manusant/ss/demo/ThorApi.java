@@ -1,6 +1,7 @@
 package io.github.manusant.ss.demo;
 
 import io.github.manusant.ss.SparkSwagger;
+import io.github.manusant.ss.conf.Options;
 import io.github.manusant.ss.demo.endpoint.HammerEndpoint;
 import io.github.manusant.ss.demo.endpoint.ShieldEndpoint;
 import spark.Service;
@@ -14,9 +15,14 @@ public class ThorApi {
 
         Service spark = Service.ignite()
                 .ipAddress("localhost")
-                .port(55555);
+                .port(8081);
 
-        SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+        Options options =  Options.defaultOptions()
+                .confPath("conf/" + SparkSwagger.CONF_FILE_NAME)
+                .version("1.0.2")
+                .build();
+
+        SparkSwagger.of(spark, options)
                 .endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
                 .generateDoc();
     }

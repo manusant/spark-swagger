@@ -15,7 +15,7 @@ public enum ContentType {
     TEXT_XML("text/xml"),
     WILDCARD("*/*");
 
-    private String value;
+    private final String value;
 
     ContentType(String value) {
         this.value = value;

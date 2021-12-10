@@ -5,18 +5,12 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import io.github.manusant.spark.typify.spec.IgnoreSpec;
-import io.github.manusant.ss.descriptor.ParameterDescriptor;
+import io.github.manusant.ss.conf.IgnoreSpec;
 import io.github.manusant.ss.factory.DefinitionsFactory;
 import io.github.manusant.ss.factory.ParamsFactory;
 import io.github.manusant.ss.model.*;
 import io.github.manusant.ss.model.auth.SecuritySchemeDefinition;
-import io.github.manusant.ss.model.parameters.BodyParameter;
 import io.github.manusant.ss.model.parameters.Parameter;
-import io.github.manusant.ss.model.properties.Property;
-import io.github.manusant.ss.model.utils.PropertyModelConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -28,9 +22,6 @@ import java.util.Map;
  */
 @JsonInclude(Include.NON_NULL)
 public class Swagger {
-
-    @JsonIgnore
-    private static final Logger LOGGER = LoggerFactory.getLogger(Swagger.class);
 
     private String swagger = "2.0";
     private Info info;
@@ -55,6 +46,11 @@ public class Swagger {
 
     public Swagger endpoints(List<ApiEndpoint> apiEndpoints) {
         this.apiEndpoints = apiEndpoints;
+        return this;
+    }
+
+    public Swagger ignores(IgnoreSpec ignoreSpec) {
+        this.ignoreSpec = ignoreSpec;
         return this;
     }
 
@@ -164,11 +160,6 @@ public class Swagger {
         return this;
     }
 
-    public Swagger ignores(IgnoreSpec ignoreConf) {
-        this.ignoreSpec = ignoreConf;
-        return this;
-    }
-
     public Swagger vendorExtension(String key, Object extension) {
         if (this.vendorExtensions == null) {
             this.vendorExtensions = new LinkedHashMap<>();
@@ -195,6 +186,10 @@ public class Swagger {
             apiEndpoints = new ArrayList<>();
         }
         apiEndpoints.add(endpoint);
+    }
+
+    public IgnoreSpec getIgnoreSpec() {
+        return ignoreSpec;
     }
 
     public Info getInfo() {
@@ -451,168 +446,16 @@ public class Swagger {
         }
     }
 
-    public void parse() {
-        LOGGER.debug("Spark-Swagger: Start parsing metadata");
-        if (apiEndpoints != null) {
-            apiEndpoints.forEach(endpoint -> {
-                if (ignoreSpec == null || !ignoreSpec.ignored(endpoint.getEndpointDescriptor().getPath())) {
-
-                    tag(endpoint.getEndpointDescriptor().getTag());
-                    endpoint.getMethodDescriptors().forEach(methodDescriptor -> {
-
-                        Operation op = new Operation();
-                        op.tag(endpoint.getEndpointDescriptor().getTag().getName());
-                        op.description(methodDescriptor.getDescription());
-
-                        if (methodDescriptor.getSummary() != null) op.summary(methodDescriptor.getSummary());
-                        if (methodDescriptor.getOperationId() != null) op.operationId(methodDescriptor.getOperationId());
-
-                        List<Parameter> parameters = ParamsFactory.create(methodDescriptor.getPath(), methodDescriptor.getParameters());
-                        op.setParameters(parameters);
-
-                        // Supply Ignore configurations
-                        DefinitionsFactory.ignoreSpec = this.ignoreSpec;
-
-                        final ParameterDescriptor methodBody = methodDescriptor.getBody();
-                        if (methodBody != null && methodBody.getModel() != null) {
-                            final Model model = methodBody.getModel();
-                            addDefinition(model.getTitle(), model);
-                            BodyParameter requestBody = new BodyParameter();
-                            requestBody.name(methodBody.getName());
-                            requestBody.description(methodBody.getDescription());
-                            requestBody.setRequired(methodBody.isRequired());
-                            requestBody.setSchema(model);
-                            op.addParameter(requestBody);
-
-                            if (methodDescriptor.getRequestType() != null) {
-                                addDefinitionsForType(model.getTitle(), methodDescriptor.getRequestType());
-                            }
-                        }
-                        else if (methodDescriptor.getRequestType() != null) {
-                            // Process fields
-                            Map<String, Model> definitions = DefinitionsFactory.create(methodDescriptor.getRequestType());
-                            for (String key : definitions.keySet()) {
-                                if (!hasDefinition(key)) {
-                                    addDefinition(key, definitions.get(key));
-                                }
-                            }
-
-                            Model model;
-                            if (definitions.isEmpty()) {
-                                Property property = DefinitionsFactory.createProperty(null, methodDescriptor.getRequestType());
-                                model = new PropertyModelConverter().propertyToModel(property);
-                            } else {
-                                RefModel refModel = new RefModel();
-                                refModel.set$ref(methodDescriptor.getRequestType().getSimpleName());
-                                model = refModel;
-                            }
-
-                            BodyParameter requestBody = new BodyParameter();
-                            requestBody.name(methodBody != null? methodBody.getName() : "body");
-                            requestBody.description(methodBody != null? methodBody.getDescription() : "Body object description");
-                            requestBody.setRequired(methodBody != null? methodBody.isRequired() : true);
-                            requestBody.setSchema(model);
-                            op.addParameter(requestBody);
-                        }
-
-                        final Map<String, Response> responses = methodDescriptor.getResponses();
-                        if (responses != null && !responses.isEmpty()) {
-
-                            responses.forEach((code, response)->{
-
-                                if (response.getResponseSchema() != null) {
-                                    final Model resModel = response.getResponseSchema();
-                                    addDefinition(resModel.getTitle(), resModel);
-
-                                    if (resModel.getTypeClass() != null) {
-                                        addDefinitionsForType(resModel.getTitle(), resModel.getTypeClass());
-                                    }
-                                }
-                                else if (response.getSchema() != null) {
-                                    final Property resProp = response.getSchema();
-                                    final Model resModel = new PropertyModelConverter().propertyToModel(resProp);
-                                    response.setResponseSchema(resModel);
-                                    addDefinition(resProp.getTitle(), resModel);
-
-                                    if (resModel.getTypeClass() != null) {
-                                        addDefinitionsForType(resModel.getTitle(), resModel.getTypeClass());
-                                    }
-                                }
-                                else if (response.getExamples() != null) {
-
-                                    response.getExamples().forEach((exKey, example)->{
-
-                                        final Map<String, Model> definitions = DefinitionsFactory.create(example.getClass());
-                                        definitions.forEach((defKey, defModel)->{
-                                            if (!hasDefinition(defKey)) {
-                                                addDefinition(defKey, defModel);
-                                            }
-                                        });
-
-                                        final Property property;
-                                        if (definitions.isEmpty()) {
-                                            property = DefinitionsFactory.createProperty(null, example.getClass());
-                                        } else {
-                                            RefModel refModel = new RefModel();
-                                            refModel.set$ref(example.getClass().getSimpleName());
-                                            property = new PropertyModelConverter().modelToProperty(refModel);
-                                        }
-                                        property.setExample(example);
-                                        response.setSchema(property);
-                                        response.setResponseSchema(new PropertyModelConverter().propertyToModel(property));
-                                    });
-                                }
-                                else if (methodDescriptor.getResponseType() != null) {
-                                    final Model resTypeModel = typeToModel(methodDescriptor.getResponseType());
-                                    response.setResponseSchema(resTypeModel);
-                                }
-
-                                op.addResponse(code, response);
-                            });
-                        }
-                        else if (methodDescriptor.getResponseType() != null) {
-                            final Property property = typeToProperty(methodDescriptor.getResponseType());
-
-                            Response responseBody = new Response();
-                            responseBody.description("successful operation");
-                            responseBody.setSchema(property);
-                            responseBody.setResponseSchema(new PropertyModelConverter().propertyToModel(property));
-                            op.addResponse("200", responseBody);
-
-                        } else {
-                            Response responseBody = new Response();
-                            responseBody.description("successful operation");
-                            op.addResponse("200", responseBody);
-                        }
-
-                        if (methodDescriptor.getProduces() != null) {
-                            op.produces(methodDescriptor.getProduces());
-                        }
-                        if (methodDescriptor.getConsumes() != null) {
-                            op.consumes(methodDescriptor.getConsumes());
-                        }
-
-                        addOperation(methodDescriptor.getPath(), methodDescriptor.getMethod(), op);
-                    });
-                }
-            });
-            LOGGER.debug("Spark-Swagger: metadata successfully parsed");
-        } else {
-            LOGGER.debug("Spark-Swagger: No metadata to parse. Please check your SparkSwagger configurations and Endpoints Resolver");
-        }
-    }
-
-    private Map<String, Model> addDefinitionsForType(final String typeName, final Class<?> type)
-    {
+    protected Map<String, Model> addDefinitionsForType(final String typeName, final Class<?> type) {
         final Map<String, Model> definitions = DefinitionsFactory.create(type);
-        definitions.forEach((defKey, defModel)->{
+        definitions.forEach((defKey, defModel) -> {
 
             // If model title set, use it for the name in case it differs from the
             // actual class name. This allows the documentation to have different
             // names for the models, that might be more useful for the user than the
             // actual names in the code.
-            final String keyToUse = defKey.equals(type.getSimpleName())?
-                    (typeName != null? typeName : defKey) :
+            final String keyToUse = defKey.equals(type.getSimpleName()) ?
+                    (typeName != null ? typeName : defKey) :
                     defKey;
 
             if (!hasDefinition(keyToUse)) {
@@ -622,36 +465,7 @@ public class Swagger {
         return definitions;
     }
 
-    private Model typeToModel(final Class<?> type) {
-        final Map<String, Model> definitions = addDefinitionsForType(null, type);
-
-        final Model model;
-        if (definitions.isEmpty()) {
-            Property property = DefinitionsFactory.createProperty(null, type);
-            model = new PropertyModelConverter().propertyToModel(property);
-        } else {
-            final RefModel refModel = new RefModel();
-            refModel.set$ref(type.getSimpleName());
-            model = refModel;
-        }
-        return model;
-    }
-
-    private Property typeToProperty(final Class<?> type) {
-        final Map<String, Model> definitions = addDefinitionsForType(null, type);
-
-        final Property property;
-        if (definitions.isEmpty()) {
-            property = DefinitionsFactory.createProperty(null, type);
-        } else {
-            final RefModel refModel = new RefModel();
-            refModel.set$ref(type.getSimpleName());
-            property = new PropertyModelConverter().modelToProperty(refModel);
-        }
-        return property;
-    }
-
-    private void addOperation(String pathStr, HttpMethod method, Operation op) {
+    protected void addOperation(String pathStr, HttpMethod method, Operation op) {
         String formattedPath = ParamsFactory.formatPath(pathStr);
         if (paths != null && paths.containsKey(formattedPath)) {
             Path path = paths.get(formattedPath);
@@ -661,157 +475,6 @@ public class Swagger {
             path.set(method, op);
             path(formattedPath, path);
         }
-        LOGGER.debug("Spark-Swagger: " + method.name() + " " + formattedPath + " parsed");
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((basePath == null) ? 0 : basePath.hashCode());
-        result = prime * result + ((consumes == null) ? 0 : consumes.hashCode());
-        result = prime * result + ((definitions == null) ? 0 : definitions.hashCode());
-        result = prime * result + ((externalDocs == null) ? 0 : externalDocs.hashCode());
-        result = prime * result + ((host == null) ? 0 : host.hashCode());
-        result = prime * result + ((info == null) ? 0 : info.hashCode());
-        result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
-        result = prime * result + ((paths == null) ? 0 : paths.hashCode());
-        result = prime * result + ((produces == null) ? 0 : produces.hashCode());
-        result = prime * result + ((responses == null) ? 0 : responses.hashCode());
-        result = prime * result + ((schemes == null) ? 0 : schemes.hashCode());
-        result = prime * result + ((security == null) ? 0 : security.hashCode());
-        result = prime * result + ((securityDefinitions == null) ? 0 : securityDefinitions.hashCode());
-        result = prime * result + ((swagger == null) ? 0 : swagger.hashCode());
-        result = prime * result + ((tags == null) ? 0 : tags.hashCode());
-        result = prime * result + ((vendorExtensions == null) ? 0 : vendorExtensions.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Swagger other = (Swagger) obj;
-        if (basePath == null) {
-            if (other.basePath != null) {
-                return false;
-            }
-        } else if (!basePath.equals(other.basePath)) {
-            return false;
-        }
-        if (consumes == null) {
-            if (other.consumes != null) {
-                return false;
-            }
-        } else if (!consumes.equals(other.consumes)) {
-            return false;
-        }
-        if (definitions == null) {
-            if (other.definitions != null) {
-                return false;
-            }
-        } else if (!definitions.equals(other.definitions)) {
-            return false;
-        }
-        if (externalDocs == null) {
-            if (other.externalDocs != null) {
-                return false;
-            }
-        } else if (!externalDocs.equals(other.externalDocs)) {
-            return false;
-        }
-        if (host == null) {
-            if (other.host != null) {
-                return false;
-            }
-        } else if (!host.equals(other.host)) {
-            return false;
-        }
-        if (info == null) {
-            if (other.info != null) {
-                return false;
-            }
-        } else if (!info.equals(other.info)) {
-            return false;
-        }
-        if (parameters == null) {
-            if (other.parameters != null) {
-                return false;
-            }
-        } else if (!parameters.equals(other.parameters)) {
-            return false;
-        }
-        if (paths == null) {
-            if (other.paths != null) {
-                return false;
-            }
-        } else if (!paths.equals(other.paths)) {
-            return false;
-        }
-        if (produces == null) {
-            if (other.produces != null) {
-                return false;
-            }
-        } else if (!produces.equals(other.produces)) {
-            return false;
-        }
-        if (responses == null) {
-            if (other.responses != null) {
-                return false;
-            }
-        } else if (!responses.equals(other.responses)) {
-            return false;
-        }
-        if (schemes == null) {
-            if (other.schemes != null) {
-                return false;
-            }
-        } else if (!schemes.equals(other.schemes)) {
-            return false;
-        }
-        if (security == null) {
-            if (other.security != null) {
-                return false;
-            }
-        } else if (!security.equals(other.security)) {
-            return false;
-        }
-        if (securityDefinitions == null) {
-            if (other.securityDefinitions != null) {
-                return false;
-            }
-        } else if (!securityDefinitions.equals(other.securityDefinitions)) {
-            return false;
-        }
-        if (swagger == null) {
-            if (other.swagger != null) {
-                return false;
-            }
-        } else if (!swagger.equals(other.swagger)) {
-            return false;
-        }
-        if (tags == null) {
-            if (other.tags != null) {
-                return false;
-            }
-        } else if (!tags.equals(other.tags)) {
-            return false;
-        }
-        if (vendorExtensions == null) {
-            if (other.vendorExtensions != null) {
-                return false;
-            }
-        } else if (!vendorExtensions.equals(other.vendorExtensions)) {
-            return false;
-        }
-        return true;
     }
 
     public Swagger vendorExtensions(Map<String, Object> vendorExtensions) {

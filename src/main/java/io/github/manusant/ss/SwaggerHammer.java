@@ -3,8 +3,7 @@ package io.github.manusant.ss;
 import com.typesafe.config.Config;
 import io.github.manusant.ss.conf.Theme;
 import io.github.manusant.ss.ui.UiTemplates;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -14,24 +13,26 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.CodeSource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
  * @author manusant
  */
+@Slf4j
 public class SwaggerHammer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SwaggerHammer.class);
-
     public void prepareUi(final Config config, Swagger swagger) throws IOException {
-        LOGGER.debug("Spark-Swagger: Start compiling Swagger UI");
+        log.debug("Spark-Swagger: Start compiling Swagger UI");
 
         String uiFolder = SwaggerHammer.getUiFolder(config.getString("spark-swagger.basePath"));
 
@@ -56,7 +57,7 @@ public class SwaggerHammer {
     private void extractUi(String uiFolder) throws IOException {
         extractUiFolder(uiFolder);
         extractTemplatesFolder(uiFolder);
-        LOGGER.debug("Spark-Swagger: UI resources and templates successfully extracted");
+        log.debug("Spark-Swagger: UI resources and templates successfully extracted");
     }
 
     private void extractUiFolder(String uiFolder) throws IOException {
@@ -95,6 +96,9 @@ public class SwaggerHammer {
                 .filter(fileName -> !fileName.contains("/") && !fileName.isEmpty())
                 .collect(Collectors.toList());
 
+        // Creates templates folder
+        Files.createDirectories(Paths.get(uiFolder + "templates/"));
+
         for (String templateFileName : templateFiles) {
             InputStream templateFile = SparkSwagger.class.getClassLoader().getResourceAsStream(dir + "/" + templateFileName);
             File file = new File(uiFolder + "templates/" + templateFileName);
@@ -109,20 +113,40 @@ public class SwaggerHammer {
     }
 
     private List<String> listFiles(String prefix) throws IOException {
-        List<String> uiFiles = new ArrayList<>();
-
         CodeSource src = SparkSwagger.class.getProtectionDomain().getCodeSource();
         if (src != null) {
-            URL jar = src.getLocation();
-            try (ZipInputStream zip = new ZipInputStream(jar.openStream())) {
-                while (true) {
-                    ZipEntry e = zip.getNextEntry();
-                    if (e == null)
-                        break;
-                    String name = e.getName();
-                    if (name.startsWith(prefix)) {
-                        uiFiles.add(name);
-                    }
+            URL location = src.getLocation();
+            //URL location = new URL("file:/Users/santoman/DEV/OpenSource/spark-swagger/target/spark-swagger-2.0.2-SNAPSHOT.jar");
+            if (location.toString().endsWith(".jar")) {
+                return filesFromJar(prefix, location);
+            } else {
+                return filesFromDir(prefix, location.toString());
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    public List<String> filesFromDir(String prefix, String dir) throws IOException {
+        String rootPath = dir.replace("file:", "");
+
+        try (Stream<Path> stream = Files.walk(Paths.get(rootPath).toAbsolutePath())) {
+            return stream
+                    .filter(path -> !Files.isDirectory(path))
+                    .map(path -> path.toString().replace(rootPath, ""))
+                    .filter(name -> !name.equals(prefix) && name.startsWith(prefix))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    private List<String> filesFromJar(String prefix, URL location) throws IOException {
+        List<String> uiFiles = new ArrayList<>();
+        try (ZipInputStream zip = new ZipInputStream(location.openStream())) {
+            while (true) {
+                ZipEntry e = zip.getNextEntry();
+                if (e == null) break;
+                String name = e.getName();
+                if (name.startsWith(prefix)) {
+                    uiFiles.add(name);
                 }
             }
         }
@@ -130,13 +154,13 @@ public class SwaggerHammer {
     }
 
     private void applyTheme(String uiFolder, final Config config) throws IOException {
-        LOGGER.debug("Spark-Swagger: Start applying configured CSS Theme");
+        log.debug("Spark-Swagger: Start applying configured CSS Theme");
         String themeName = config.getString("spark-swagger.theme");
         Theme theme = Theme.fromValue(themeName);
 
         String themeCss = readFile(uiFolder, "templates/" + theme.getValue() + ".css", StandardCharsets.UTF_8);
         saveFile(uiFolder, "swagger-ui.css", themeCss);
-        LOGGER.debug("Spark-Swagger: CSS Theme successfully applied");
+        log.debug("Spark-Swagger: CSS Theme successfully applied");
     }
 
     private String readFile(String uiFolder, String name, Charset encoding) throws IOException {
@@ -151,16 +175,19 @@ public class SwaggerHammer {
         FileWriter f2 = new FileWriter(file, false);
         f2.write(content);
         f2.close();
-        LOGGER.debug("Spark-Swagger: Swagger UI file " + fileName + " successfully saved");
+        log.debug("Spark-Swagger: Swagger UI file " + fileName + " successfully saved");
     }
 
     public static String getUiFolder(String basePath) {
-        if (basePath.isEmpty()) return getSwaggerUiFolder();
-        return System.getProperty("java.io.tmpdir") + "/swagger-ui" + (basePath.startsWith("/") ? "" : "/") + basePath + (basePath.endsWith("/") ? "" : "/");
+        if (basePath.isEmpty()) {
+            return getSwaggerUiFolder();
+        }
+        String formattedPath = (basePath.startsWith("/") ? basePath.replaceFirst("/", "") : basePath) + (basePath.endsWith("/") ? "" : "/");
+        return getSwaggerUiFolder() + formattedPath;
     }
 
     public static String getSwaggerUiFolder() {
-        return System.getProperty("java.io.tmpdir") + "/swagger-ui/";
+        return System.getProperty("java.io.tmpdir") + "swagger-ui/";
     }
 
     public static void createDir(final String path) {
@@ -171,7 +198,7 @@ public class SwaggerHammer {
     }
 
     private String decorateIndex(final Config config) {
-        LOGGER.debug("Spark-Swagger: Start decorating index.html according to ui configurations");
+        log.debug("Spark-Swagger: Start decorating index.html according to ui configurations");
         String indexTemplate = UiTemplates.indexTemplate();
         int scriptStartIndex = indexTemplate.indexOf("window.onload");
         int scriptEndIndex = indexTemplate.indexOf("</script>", scriptStartIndex);
@@ -190,7 +217,7 @@ public class SwaggerHammer {
         scriptTemplate = setPrimitiveProperty(scriptTemplate, "showExtensions", config.getString("spark-swagger.showExtensions"), false);
         scriptTemplate = setPrimitiveProperty(scriptTemplate, "showCommonExtensions", config.getString("spark-swagger.showCommonExtensions"), false);
         scriptTemplate = setStringProperty(scriptTemplate, "tagsSorter", config.getString("spark-swagger.tagsSorter"), "alpha");
-        LOGGER.debug("Spark-Swagger: index.html successfully decorated");
+        log.debug("Spark-Swagger: index.html successfully decorated");
         return indexTemplate.replace(currentScript, scriptTemplate);
     }
 

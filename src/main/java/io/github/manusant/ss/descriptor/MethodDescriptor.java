@@ -23,6 +23,7 @@ public class MethodDescriptor {
     private ParameterDescriptor body;
     private Class<?> responseType;
     private boolean responseAsCollection;
+    private boolean responseAsMap;
     private String operationId;
     private List<String> consumes;
     private List<String> produces;
@@ -54,6 +55,7 @@ public class MethodDescriptor {
     public void setSummary(String summary) {
         this.summary = summary;
     }
+
     public String getDescription() {
         return description;
     }
@@ -81,6 +83,7 @@ public class MethodDescriptor {
     public ParameterDescriptor getBody() {
         return body;
     }
+
     public void setBody(ParameterDescriptor body) {
         this.body = body;
     }
@@ -99,6 +102,14 @@ public class MethodDescriptor {
 
     public void setResponseAsCollection(boolean responseAsCollection) {
         this.responseAsCollection = responseAsCollection;
+    }
+
+    public boolean isResponseAsMap() {
+        return responseAsMap;
+    }
+
+    public void setResponseAsMap(boolean responseAsMap) {
+        this.responseAsMap = responseAsMap;
     }
 
     public String getOperationId() {
@@ -161,6 +172,10 @@ public class MethodDescriptor {
         return new Builder().withPath(path);
     }
 
+    public static Builder path() {
+        return new Builder().withPath("");
+    }
+
     public static final class Builder {
         private HttpMethod method;
         private String path;
@@ -171,6 +186,7 @@ public class MethodDescriptor {
         private ParameterDescriptor body;
         private Class responseType;
         private boolean responseAsCollection;
+        private boolean responseAsMap;
         private String operationId;
         private List<String> consumes;
         private List<String> produces;
@@ -211,7 +227,7 @@ public class MethodDescriptor {
             return this;
         }
 
-        public Builder withBody(ParameterDescriptor body ) {
+        public Builder withBody(ParameterDescriptor body) {
             this.body = body;
             return this;
         }
@@ -234,6 +250,12 @@ public class MethodDescriptor {
 
         public Builder withResponseAsCollection(Class itemType) {
             this.responseAsCollection = true;
+            this.responseType = itemType;
+            return this;
+        }
+
+        public Builder withResponseAsMap(Class itemType) {
+            this.responseAsMap = true;
             this.responseType = itemType;
             return this;
         }
@@ -309,6 +331,7 @@ public class MethodDescriptor {
             methodDescriptor.setBody(body);
             methodDescriptor.setResponseType(responseType);
             methodDescriptor.setResponseAsCollection(responseAsCollection);
+            methodDescriptor.setResponseAsMap(responseAsMap);
             methodDescriptor.setOperationId(operationId);
             methodDescriptor.setConsumes(consumes);
             methodDescriptor.setProduces(produces);

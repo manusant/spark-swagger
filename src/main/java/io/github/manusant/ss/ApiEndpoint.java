@@ -1,6 +1,6 @@
 package io.github.manusant.ss;
 
-import io.github.manusant.ss.descriptor.EndpointDescriptor;
+import  io.github.manusant.ss.descriptor.EndpointDescriptor;
 import io.github.manusant.ss.descriptor.MethodDescriptor;
 import io.github.manusant.ss.model.HttpMethod;
 import spark.*;
@@ -45,10 +45,6 @@ public class ApiEndpoint {
         descriptor.setMethod(method);
         methodDescriptors.add(descriptor);
         return descriptor;
-    }
-
-    public SparkSwagger and() {
-        return swagger;
     }
 
     public List<MethodDescriptor> getMethodDescriptors() {

@@ -1,16 +1,13 @@
 package io.github.manusant.ss.factory;
 
-import io.github.manusant.spark.typify.spec.IgnoreSpec;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.github.manusant.ss.conf.IgnoreSpec;
 import io.github.manusant.ss.model.Model;
 import io.github.manusant.ss.model.ModelImpl;
 import io.github.manusant.ss.model.properties.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -132,7 +129,7 @@ public class DefinitionsFactory {
             case ARRAY: {
                 final ArrayProperty arrayProp = new ArrayProperty();
                 if (name != null) arrayProp.setName(name);
-                final Iterator<JsonNode> elements = ((ArrayNode)node).iterator();
+                final Iterator<JsonNode> elements = ((ArrayNode) node).iterator();
                 Property elementProp = null;
                 while (elements.hasNext()) {
                     if (elementProp == null) {
@@ -142,9 +139,9 @@ public class DefinitionsFactory {
                     if (!(elementProp instanceof ObjectProperty)) break;
                     final Property nextElementProp = DefinitionsFactory.createProperty(null, elements.next());
                     if (!(nextElementProp instanceof ObjectProperty)) break;
-                    final ObjectProperty nextObjProp = (ObjectProperty)nextElementProp;
-                    final ObjectProperty objProp = (ObjectProperty)elementProp;
-                    nextObjProp.getProperties().forEach((fieldName, fieldProp)->{
+                    final ObjectProperty nextObjProp = (ObjectProperty) nextElementProp;
+                    final ObjectProperty objProp = (ObjectProperty) elementProp;
+                    nextObjProp.getProperties().forEach((fieldName, fieldProp) -> {
                         objProp.property(fieldName, fieldProp);
                     });
                 }
