@@ -176,7 +176,7 @@ There are two ways to bind endpoins:
 Another resolver implementation can be a simple collection of endpoint instances
 ```java
    Service spark = Service.ignite().port(55555);
-   SparkSwagger.of(spark, "conf/" + SparkSwagger.CONF_FILE_NAME)
+   SparkSwagger.of(spark, options)
 	    .endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
 ```
 ## Response Type Specification
