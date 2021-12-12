@@ -54,6 +54,21 @@ And add the dependency
     <version>2.0.2</version>
   </dependency>
 ```
+GitHub packages requires authentication for artifacts download,so you need to add a **github** server to **settings.xml** providing required credentials, as follows:
+```xml
+<servers>
+    <server>
+      <id>github</id>
+      <username>USERNAME</username>
+      <password>TOKEN</password>
+    </server>
+</servers>
+```
+Where:
+* **USERNAME** is your GitHub username
+* **TOKEN** is a GitHub personal access token that you need to generate at your GitHub account in order to allow authentication.
+
+> Refer to GitHub documentation [working-with-the-apache-maven-registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry) and [authenticating-to-github-packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages) for more details.
 # Usage
 To use the extension you need to wrap the *Spark* Service instance into a *SparkSwagger* instance. All methods provided by *Spark* remains but new ones was added in order to provide a more modular api.
 
