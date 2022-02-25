@@ -187,7 +187,7 @@ public class SwaggerHammer {
     }
 
     public static String getSwaggerUiFolder() {
-        return Paths.get(System.getProperty("java.io.tmpdir"), "swagger-ui/").toString();
+        return Paths.get(System.getProperty("java.io.tmpdir"), "swagger-ui").toString() + "/"; // TODO: convert "/" to File.pathSeparator;
     }
 
     public static void createDir(final String path) {
