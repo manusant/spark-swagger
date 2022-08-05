@@ -27,10 +27,20 @@ Add this entry to your *build.gradle* file
 ```groovy
  repositories {
     maven {
-        url "https://maven.pkg.github.com/manusant/spark-swagger"
+	name = "GitHubPackages"
+	url = uri("https://maven.pkg.github.com/manusant/spark-swagger")
+	credentials {
+	    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+	    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+	}
     }
 }
 ```
+
+Where:
+* **USERNAME** is your GitHub username
+* **TOKEN** is a GitHub personal access token that you need to generate at your GitHub account in order to allow authentication.
+
 And add the dependency
 ```groovy
   compile 'io.github.manusant:spark-swagger:2.0.2'
