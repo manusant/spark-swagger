@@ -8,6 +8,7 @@ import io.github.manusant.ss.conf.Options;
 import io.github.manusant.ss.conf.TypifyProvider;
 import io.github.manusant.ss.descriptor.EndpointDescriptor;
 import io.github.manusant.ss.model.*;
+import io.github.manusant.ss.model.auth.SecuritySchemeDefinition;
 import io.github.manusant.ss.rest.Endpoint;
 import io.github.manusant.ss.rest.EndpointResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import spark.HaltException;
 import spark.Service;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -199,6 +201,16 @@ public class SparkSwagger {
 
     public HaltException halt(int status, String body) {
         return spark.halt(status, body);
+    }
+
+    public SparkSwagger security(String name, SecuritySchemeDefinition securityDefinition) {
+        return security(name, securityDefinition, Collections.emptyList());
+    }
+
+    public SparkSwagger security(String name, SecuritySchemeDefinition securityDefinition, List<String> scopes) {
+        swagger.addSecurityDefinition(name, securityDefinition);
+        swagger.addSecurity(new SecurityRequirement().requirement(name, scopes));
+        return this;
     }
 
     private String getHost() {
