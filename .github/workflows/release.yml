@@ -1,13 +1,18 @@
 name: release
 
 on:
-  push:
-    branches:
-      - master
-
+  workflow_dispatch:
+    inputs:
+      bumpStrategy:
+        type: choice
+        description: Bump Strategy
+        required: true
+        options:
+          - patch
+          - minor
+          - major
 jobs:
   release:
-    if: "contains(github.event.head_commit.message, 'feature') || contains(github.event.head_commit.message, 'bugfix')"
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout Project
@@ -31,13 +36,17 @@ jobs:
           key: maven-cache-${{ hashFiles('**/pom.xml') }}
           restore-keys: maven-cache-
 
+      - name: Bump patch version
+        if: github.event.inputs.bumpStrategy == 'patch'
+        run: ./mvnw build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}
+
       - name: Bump minor version
-        if: "contains(github.event.head_commit.message, 'feature')"
+        if: github.event.inputs.bumpStrategy == 'minor'
         run: ./mvnw build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0
 
-      - name: Bump patch version
-        if: "contains(github.event.head_commit.message, 'bugfix')"
-        run: ./mvnw build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}
+      - name: Bump Major version
+        if: github.event.inputs.bumpStrategy == 'major'
+        run: ./mvnw build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.nextMajorVersion}.0.0
 
       - name: Build
         id: build
