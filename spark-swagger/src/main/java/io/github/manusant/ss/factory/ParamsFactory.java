@@ -1,10 +1,7 @@
 package io.github.manusant.ss.factory;
 
 import io.github.manusant.ss.descriptor.ParameterDescriptor;
-import io.github.manusant.ss.model.parameters.AbstractSerializableParameter;
-import io.github.manusant.ss.model.parameters.Parameter;
-import io.github.manusant.ss.model.parameters.PathParameter;
-import io.github.manusant.ss.model.parameters.QueryParameter;
+import io.github.manusant.ss.model.parameters.*;
 import io.github.manusant.ss.model.properties.*;
 import spark.utils.SparkUtils;
 
@@ -29,6 +26,12 @@ public class ParamsFactory {
         parameters.addAll(pathParams);
         List<Parameter> queryParams = createQueryParams(parameterDescriptors);
         parameters.addAll(queryParams);
+        List<Parameter> headerParams = createHeaderParams(parameterDescriptors);
+        parameters.addAll(headerParams);
+        List<Parameter> formParams = createFormParams(parameterDescriptors);
+        parameters.addAll(formParams);
+        List<Parameter> cookieParams = createCookieParams(parameterDescriptors);
+        parameters.addAll(cookieParams);
         return parameters;
     }
 
@@ -68,7 +71,28 @@ public class ParamsFactory {
     private static List<Parameter> createQueryParams(List<ParameterDescriptor> parameterDescriptors) {
         return filter(parameterDescriptors, ParameterDescriptor.ParameterType.QUERY)
                 .stream()
-                .map(ParamsFactory::toQuey)
+                .map(ParamsFactory::toQuery)
+                .collect(Collectors.toList());
+    }
+
+    private static List<Parameter> createHeaderParams(List<ParameterDescriptor> parameterDescriptors) {
+        return filter(parameterDescriptors, ParameterDescriptor.ParameterType.HEADER)
+                .stream()
+                .map(ParamsFactory::toHeader)
+                .collect(Collectors.toList());
+    }
+
+    private static List<Parameter> createFormParams(List<ParameterDescriptor> parameterDescriptors) {
+        return filter(parameterDescriptors, ParameterDescriptor.ParameterType.FORM)
+                .stream()
+                .map(ParamsFactory::toForm)
+                .collect(Collectors.toList());
+    }
+
+    private static List<Parameter> createCookieParams(List<ParameterDescriptor> parameterDescriptors) {
+        return filter(parameterDescriptors, ParameterDescriptor.ParameterType.COOKIE)
+                .stream()
+                .map(ParamsFactory::toCookie)
                 .collect(Collectors.toList());
     }
 
@@ -117,8 +141,26 @@ public class ParamsFactory {
         return parameter;
     }
 
-    private static QueryParameter toQuey(final ParameterDescriptor parameterDescriptor) {
+    private static QueryParameter toQuery(final ParameterDescriptor parameterDescriptor) {
         QueryParameter parameter = new QueryParameter();
+        bindAttributes(parameterDescriptor, parameter);
+        return parameter;
+    }
+
+    private static HeaderParameter toHeader(final ParameterDescriptor parameterDescriptor) {
+        HeaderParameter parameter = new HeaderParameter();
+        bindAttributes(parameterDescriptor, parameter);
+        return parameter;
+    }
+
+    private static FormParameter toForm(final ParameterDescriptor parameterDescriptor) {
+        FormParameter parameter = new FormParameter();
+        bindAttributes(parameterDescriptor, parameter);
+        return parameter;
+    }
+
+    private static CookieParameter toCookie(final ParameterDescriptor parameterDescriptor) {
+        CookieParameter parameter = new CookieParameter();
         bindAttributes(parameterDescriptor, parameter);
         return parameter;
     }

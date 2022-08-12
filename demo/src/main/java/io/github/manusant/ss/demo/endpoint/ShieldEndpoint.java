@@ -52,6 +52,10 @@ public class ShieldEndpoint implements Endpoint {
                 .get(path("/options")
                         .withDescription("Gets all shield options")
                         .withSecurity("thor_api_key")
+                        .withHeaderParam().withName("x-export-kpi").withDescription("Export KPI Header").withRequired(true)
+                        .and()
+                        .withCookieParam().withName("my-cookie-data")
+                        .and()
                         .withResponseAsMap(Shield.class), new Route() {
                     @Override
                     public Object onRequest(Request request, Response response) {

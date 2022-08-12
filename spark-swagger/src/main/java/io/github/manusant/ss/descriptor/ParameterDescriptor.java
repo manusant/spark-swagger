@@ -10,7 +10,10 @@ import java.util.Optional;
 public class ParameterDescriptor {
     public enum ParameterType {
         PATH,
-        QUERY
+        QUERY,
+        FORM,
+        HEADER,
+        COOKIE
     }
 
     private String name;

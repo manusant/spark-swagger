@@ -295,6 +295,12 @@ public class MethodDescriptor {
             return this;
         }
 
+        public Builder withParam(ParameterDescriptor.ParameterType type, ParameterDescriptor param) {
+            param.setType(type);
+            this.parameters.add(param);
+            return this;
+        }
+
         public ParameterDescriptor.Builder withPathParam() {
             return ParameterDescriptor.newBuilder(this).withType(ParameterDescriptor.ParameterType.PATH);
         }
@@ -311,6 +317,36 @@ public class MethodDescriptor {
 
         public Builder withQueryParam(ParameterDescriptor param) {
             param.setType(ParameterDescriptor.ParameterType.QUERY);
+            this.parameters.add(param);
+            return this;
+        }
+
+        public ParameterDescriptor.Builder withHeaderParam() {
+            return ParameterDescriptor.newBuilder(this).withType(ParameterDescriptor.ParameterType.HEADER);
+        }
+
+        public Builder withHeaderParam(ParameterDescriptor param) {
+            param.setType(ParameterDescriptor.ParameterType.HEADER);
+            this.parameters.add(param);
+            return this;
+        }
+
+        public ParameterDescriptor.Builder withFormParam() {
+            return ParameterDescriptor.newBuilder(this).withType(ParameterDescriptor.ParameterType.FORM);
+        }
+
+        public Builder withFormParam(ParameterDescriptor param) {
+            param.setType(ParameterDescriptor.ParameterType.FORM);
+            this.parameters.add(param);
+            return this;
+        }
+
+        public ParameterDescriptor.Builder withCookieParam() {
+            return ParameterDescriptor.newBuilder(this).withType(ParameterDescriptor.ParameterType.COOKIE);
+        }
+
+        public Builder withCookieParam(ParameterDescriptor param) {
+            param.setType(ParameterDescriptor.ParameterType.COOKIE);
             this.parameters.add(param);
             return this;
         }
