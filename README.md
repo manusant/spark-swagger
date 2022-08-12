@@ -43,7 +43,7 @@ Where:
 
 And add the dependency
 ```groovy
-  compile 'io.github.manusant:spark-swagger:2.0.4'
+  compile 'io.github.manusant:spark-swagger:2.0.5'
 ```
 #### Maven
 Add this to *dependencyManagement* section of your *pom.xml* 
@@ -61,7 +61,7 @@ And add the dependency
   <dependency>
     <groupId>io.github.manusant</groupId>
     <artifactId>spark-swagger</artifactId>
-    <version>2.0.4</version>
+    <version>2.0.5</version>
   </dependency>
 ```
 GitHub packages requires authentication for artifacts download,so you need to add a **github** server to **settings.xml** providing required credentials, as follows:
@@ -102,7 +102,29 @@ Options options =  Options.defaultOptions()
 	.version("1.0.2")
 	.build();
 
+// Basic auth security
+BasicAuthDefinition basic = new BasicAuthDefinition();
+basic.setDescription("Basic Auth for Thor");
+
+// API Key security
+ApiKeyAuthDefinition apiKey = new ApiKeyAuthDefinition();
+apiKey.in(In.HEADER);
+apiKey.setName("x-api-key");
+
+// OAuth2 security
+OAuth2Definition oauth = new OAuth2Definition();
+oauth.setAuthorizationUrl("http://petstore.swagger.io/oauth/dialog");
+oauth.setFlow("implicit");
+oauth.addScope("write:shield", "modify thor shields");
+oauth.addScope("read:shield", "read thor shields");	
+
 SparkSwagger.of(spark, options)
+         // Bind endpoints
+	.endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
+	// Bind Security Options
+	.security("thor_basic",basic)
+	.security("thor_api_key",apiKey)
+	.security("thor_auth",oauth);
 ```
 ### Options
 Option | Description |Default
@@ -144,6 +166,11 @@ public class HammerEndpoint implements Endpoint {
 
                 .get(path("/export")
                         .withDescription("Gets the whole Network")
+			.withSecurity("thor_api_key")
+                        .withHeaderParam().withName("x-export-kpi").withDescription("Export KPI Header").withRequired(true)
+                        .and()
+                        .withCookieParam().withName("my-cookie-data")
+                        .and()
                         .withResponseType(Network.class), new Route() {
                     @Override
                     public Object onRequest(Request request, Response response) {
@@ -160,9 +187,10 @@ public class HammerEndpoint implements Endpoint {
                 })
 
                 .post(path("/backup")
-                                .withDescription("Trigger Network Backup")
-                                .withRequestType(BackupRequest.class)
-                                .withGenericResponse(),
+			.withDescription("Trigger Network Backup")
+			.withRequestType(BackupRequest.class)
+			 .withSecurity("thor_auth", Collections.singletonList("write:shield"))
+			.withGenericResponse(),
                         new TypedRoute<BackupRequest>() {
 
                             @Content(ContentType.APPLICATION_JSON)
@@ -173,6 +201,7 @@ public class HammerEndpoint implements Endpoint {
 
                 .delete(path("/")
                         .withDescription("Clear Thor network resources")
+			.withSecurity("thor_auth", Collections.singletonList("write:shield"))
                         .withGenericResponse(), new Route() {
                     @Override
                     public Object onRequest(Request request, Response response) {
