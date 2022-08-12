@@ -331,9 +331,14 @@ Two metadata descriptors are provided. **EndpointDescriptor** to describe docume
 		.withPath("export/:example1/:example2/:example3")
 		// Method description
 		.withDescription("Clear Thor network resources")
+		// Security
+		.withSecurity("thor_auth", Collections.singletonList("write:shield"))
 		// Path params specifications. If param type is String you don´t need to specify it
-		.withPathParam().withName("example2").withObject(CardType.class).and()
-		.withPathParam().withName("example3").withCollectionOf(NeType.class).and()
+		.withPathParam().withName("example2").and()
+		// Header param
+		.withHeaderParam().withName("x-export-kpi").withDescription("Export KPI Header").withRequired(true).and()
+		// Cookie param
+                .withCookieParam().withName("my-cookie-data").withDescription("My custom cookie").and()
 		// Query params
 		 .withQueryParam().withName("shieldPower").withDescription("Specify the power of the shield").and()
 		// Specify response type
