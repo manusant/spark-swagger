@@ -102,6 +102,23 @@ Options options =  Options.defaultOptions()
 	.version("1.0.2")
 	.build();
 
+SparkSwagger.of(spark, options)
+   
+```
+### Options
+Option | Description |Default
+--- | --- | ---
+`confPath` | `String`. path for spark-swagger configuration file | resources/spark-swagger.conf
+`version` | `String`. version of the service providing the API | 
+`enableStaticMapping` | `Boolean`. flag to enable or disable static mapping for the generated swagger (UI, doc.json and doc.yaml) | true
+`enableCors` | `Boolean`. flag to enable CORS config | true
+
+## Security
+SparkSwagger allows you to provide security configurations that can be applyed to the enpoints using MethodDescriptor.
+
+* 1. These security configurations should be binded to the SparkSwagger instance as follows:
+```java
+
 // Basic auth security
 BasicAuthDefinition basic = new BasicAuthDefinition();
 basic.setDescription("Basic Auth for Thor");
@@ -119,20 +136,55 @@ oauth.addScope("write:shield", "modify thor shields");
 oauth.addScope("read:shield", "read thor shields");	
 
 SparkSwagger.of(spark, options)
-         // Bind endpoints
+	 // Bind endpoints
 	.endpoints(() -> Arrays.asList(new HammerEndpoint(), new ShieldEndpoint()))
 	// Bind Security Options
 	.security("thor_basic",basic)
 	.security("thor_api_key",apiKey)
 	.security("thor_auth",oauth);
 ```
-### Options
-Option | Description |Default
---- | --- | ---
-`confPath` | `String`. path for spark-swagger configuration file | resources/spark-swagger.conf
-`version` | `String`. version of the service providing the API | 
-`enableStaticMapping` | `Boolean`. flag to enable or disable static mapping for the generated swagger (UI, doc.json and doc.yaml) | true
-`enableCors` | `Boolean`. flag to enable CORS config | true
+
+* 2. Then they can be referenced by each method that requires authentication.
+Basic Auth
+
+```java
+ .get(path()
+	.withDescription("Gets the available shields")
+	.withSecurity("thor_basic")
+	.withResponseAsCollection(Shield.class), new Route() {
+    @Override
+    public Object onRequest(Request request, Response response) {
+	return ok(response, Collections.emptyList());
+    }
+})
+```
+API Key
+
+```java
+ .get(path()
+	.withDescription("Gets the available shields")
+	.withSecurity("thor_api_key")
+	.withResponseAsCollection(Shield.class), new Route() {
+    @Override
+    public Object onRequest(Request request, Response response) {
+	return ok(response, Collections.emptyList());
+    }
+})
+```
+OAuth 2
+
+```java
+ .get(path()
+	.withDescription("Gets the available shields")
+	.withSecurity("thor_auth")
+	.withResponseAsCollection(Shield.class), new Route() {
+    @Override
+    public Object onRequest(Request request, Response response) {
+	return ok(response, Collections.emptyList());
+    }
+})
+```
+
 ## Endpoints Binding
 An Interface class named **Endpoint** was introduced in order to facilitate Endpoints modularization. Code below is an Endpoint implementation example.
 ```java
