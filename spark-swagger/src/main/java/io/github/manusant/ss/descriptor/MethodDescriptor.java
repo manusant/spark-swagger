@@ -5,9 +5,7 @@ import io.github.manusant.ss.model.HttpMethod;
 import io.github.manusant.ss.model.Response;
 import io.github.manusant.ss.rest.RestResponse;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author manusant
@@ -31,6 +29,8 @@ public class MethodDescriptor {
     private Map<String, Response> responses;
     private ExternalDocs externalDocs;
     private Boolean deprecated;
+
+    private List<Map<String, List<String>>> security;
 
     public HttpMethod getMethod() {
         return method;
@@ -168,6 +168,14 @@ public class MethodDescriptor {
         this.deprecated = deprecated;
     }
 
+    public List<Map<String, List<String>>> getSecurity() {
+        return security;
+    }
+
+    public void setSecurity(List<Map<String, List<String>>> security) {
+        this.security = security;
+    }
+
     public static Builder path(String path) {
         return new Builder().withPath(path);
     }
@@ -194,6 +202,8 @@ public class MethodDescriptor {
         private Map<String, Response> responses;
         private ExternalDocs externalDocs;
         private Boolean deprecated;
+
+        private List<Map<String, List<String>>> security;
 
         private Builder() {
         }
@@ -320,6 +330,29 @@ public class MethodDescriptor {
             return this;
         }
 
+        public Builder withSecurity(List<Map<String, List<String>>> security) {
+            this.security = security;
+            return this;
+        }
+
+        public Builder withSecurity(String name, List<String> scopes) {
+            if (this.security == null) {
+                this.security = new ArrayList<>();
+            }
+            Map<String, List<String>> req = new LinkedHashMap<>();
+            if (scopes == null) {
+                scopes = new ArrayList<>();
+            }
+            req.put(name, scopes);
+            this.security.add(req);
+            return this;
+        }
+
+        public Builder withSecurity(String name) {
+            this.withSecurity(name, Collections.emptyList());
+            return this;
+        }
+
         public MethodDescriptor build() {
             MethodDescriptor methodDescriptor = new MethodDescriptor();
             methodDescriptor.setMethod(method);
@@ -339,6 +372,7 @@ public class MethodDescriptor {
             methodDescriptor.setResponses(responses);
             methodDescriptor.setExternalDocs(externalDocs);
             methodDescriptor.setDeprecated(deprecated);
+            methodDescriptor.setSecurity(security);
             return methodDescriptor;
         }
     }

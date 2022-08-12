@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import spark.Request;
 import spark.Response;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import static io.github.manusant.ss.descriptor.EndpointDescriptor.endpointPath;
 import static io.github.manusant.ss.descriptor.MethodDescriptor.path;
 import static io.github.manusant.ss.rest.RestResponse.badRequest;

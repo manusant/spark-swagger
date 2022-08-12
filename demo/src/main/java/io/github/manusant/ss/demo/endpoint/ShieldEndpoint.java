@@ -11,6 +11,7 @@ import spark.Request;
 import spark.Response;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ public class ShieldEndpoint implements Endpoint {
 
                 .get(path()
                         .withDescription("Gets the available shields")
+                        .withSecurity("thor_basic")
                         .withResponseAsCollection(Shield.class), new Route() {
                     @Override
                     public Object onRequest(Request request, Response response) {
@@ -49,6 +51,7 @@ public class ShieldEndpoint implements Endpoint {
 
                 .get(path("/options")
                         .withDescription("Gets all shield options")
+                        .withSecurity("thor_api_key")
                         .withResponseAsMap(Shield.class), new Route() {
                     @Override
                     public Object onRequest(Request request, Response response) {
@@ -76,6 +79,7 @@ public class ShieldEndpoint implements Endpoint {
                 })
                 .post(path("/:id")
                         .withDescription("Get Shield by ID")
+                        .withSecurity("thor_auth", Collections.singletonList("write:shield"))
                         .withRequestType(BackupRequest.class)
                         .withResponseType(Shield.class), new TypedRoute<BackupRequest>() {
 
@@ -87,6 +91,7 @@ public class ShieldEndpoint implements Endpoint {
 
                 .delete(path("/")
                         .withDescription("Delete all shields")
+                        .withSecurity("thor_auth", Collections.singletonList("write:shield"))
                         .withGenericResponse(), new Route() {
                     @Override
                     public Object onRequest(Request request, Response response) {

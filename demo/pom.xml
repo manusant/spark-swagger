@@ -2,22 +2,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.github.manusant</groupId>
     <artifactId>spark-swagger-demo</artifactId>
-    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <prerequisites>
         <maven>3.0.4</maven>
     </prerequisites>
 
-    <developers>
-        <developer>
-            <id>manusant</id>
-            <name>Manuel Santos</name>
-            <email>ney.br.santos@gmail.com</email>
-        </developer>
-    </developers>
+    <parent>
+        <groupId>io.github.manusant</groupId>
+        <artifactId>spark-swagger-parent</artifactId>
+        <version>2.0.5-SNAPSHOT</version>
+    </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,15 +27,13 @@
         <logback.version>1.2.9</logback.version>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>github</id>
-            <name>Spark-Swagger Packages</name>
-            <url>https://maven.pkg.github.com/manusant/spark-swagger</url>
-        </repository>
-    </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>io.github.manusant</groupId>
+            <artifactId>spark-swagger</artifactId>
+            <version>2.0.5-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -50,11 +44,6 @@
             <groupId>com.sparkjava</groupId>
             <artifactId>spark-core</artifactId>
             <version>2.9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.manusant</groupId>
-            <artifactId>spark-swagger</artifactId>
-            <version>2.0.2</version>
         </dependency>
 
         <!--

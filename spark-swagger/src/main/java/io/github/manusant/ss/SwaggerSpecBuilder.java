@@ -45,6 +45,7 @@ public class SwaggerSpecBuilder {
                                 Operation op = new Operation();
                                 op.tag(endpoint.getEndpointDescriptor().getTag().getName());
                                 op.description(methodDescriptor.getDescription());
+                                op.setSecurity(methodDescriptor.getSecurity());
 
                                 Optional.ofNullable(methodDescriptor.getSummary()).ifPresent(op::summary);
                                 Optional.ofNullable(methodDescriptor.getOperationId()).ifPresent(op::operationId);
