@@ -1,0 +1,59 @@
+name: release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    if: "contains(github.event.head_commit.message, 'feature') || contains(github.event.head_commit.message, 'bugfix')"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v2
+
+      - name: Setup environment
+        id: setup-environment
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - uses: whelk-io/maven-settings-xml-action@v13
+        with:
+          servers: '[{ "id": "git", "username": "${{ secrets.MVN_SERVER_USER }}", "password": "${{ secrets.MVN_SERVER_PASS }}" }]'
+          repositories: '[{ "id": "git", "url": "https://maven.pkg.github.com/manusant/spark-swagger" }]'
+
+      - name: Maven cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: maven-cache-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-cache-
+
+      - name: Bump minor version
+        if: "contains(github.event.head_commit.message, 'feature')"
+        run: ./mvnw build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0
+
+      - name: Bump patch version
+        if: "contains(github.event.head_commit.message, 'bugfix')"
+        run: ./mvnw build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}
+
+      - name: Build
+        id: build
+        run: ./mvnw clean package -PCI
+
+      - name: Deploy
+        id: deploy
+        run: ./mvnw deploy -PCI
+
+      - name: Get project version
+        run: echo "PROJECT_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+      - name: Commit version and create tag
+        run: |
+          git config --global user.name "release-bot"
+          git config --global user.email "release-bot@users.noreply.github.com"
+          git commit -am "release v${{ env.PROJECT_VERSION }}"
+          git tag -a v${{ env.PROJECT_VERSION }} -m "Version ${{ env.PROJECT_VERSION }}"
+          git push --follow-tags
