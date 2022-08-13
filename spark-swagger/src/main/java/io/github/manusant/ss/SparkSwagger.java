@@ -17,6 +17,7 @@ import spark.Filter;
 import spark.HaltException;
 import spark.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -43,13 +44,21 @@ public class SparkSwagger {
         this.spark = spark;
         this.options = options == null ? Options.defaultOptions().build() : options;
         this.swagger = new Swagger();
-        this.config = ConfigFactory.parseResources(Objects.requireNonNull(options).getConfPath());
+        this.config = getConfig(options);
         this.apiPath = this.config.getString("spark-swagger.basePath");
         this.swagger.setBasePath(this.apiPath);
         this.swagger.setExternalDocs(ExternalDocs.newBuilder().build());
         this.swagger.setHost(getHost());
         this.swagger.setInfo(getInfo());
         configDocRoute();
+    }
+
+    private Config getConfig(Options options) {
+        Config config = ConfigFactory.parseResources(Objects.requireNonNull(options).getConfPath());
+        if (!config.hasPath("spark-swagger")) {
+            config = ConfigFactory.parseFile(new File(Objects.requireNonNull(options).getConfPath()));
+        }
+        return config;
     }
 
     public String getApiPath() {
