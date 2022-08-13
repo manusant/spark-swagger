@@ -43,7 +43,7 @@ Where:
 
 And add the dependency
 ```groovy
-  compile 'io.github.manusant:spark-swagger:2.0.5'
+  compile 'io.github.manusant:spark-swagger:2.0.6'
 ```
 #### Maven
 Add this to *dependencyManagement* section of your *pom.xml* 
@@ -61,7 +61,7 @@ And add the dependency
   <dependency>
     <groupId>io.github.manusant</groupId>
     <artifactId>spark-swagger</artifactId>
-    <version>2.0.5</version>
+    <version>2.0.6</version>
   </dependency>
 ```
 GitHub packages requires authentication for artifacts download,so you need to add a **github** server to **settings.xml** providing required credentials, as follows:
