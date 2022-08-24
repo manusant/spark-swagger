@@ -28,6 +28,11 @@ public class DefinitionsFactory {
     public static IgnoreSpec ignoreSpec;
 
     public static Map<String, Model> create(Class type) {
+        Map<Field, Map<String, Model>> processedClasses = new HashMap<>();
+        return create(type, processedClasses);
+    }
+
+    private static Map<String, Model> create(Class type, Map<Field, Map<String, Model>> processedClasses) {
         Map<String, Model> definitions = new HashMap<>();
 
         if (isObject(type)) {
@@ -35,13 +40,14 @@ public class DefinitionsFactory {
             model.setType(ModelImpl.OBJECT);
             definitions.put(type.getSimpleName(), model);
 
-            Map<String, Model> refDefinitions = parseProperties(model, type.getDeclaredFields());
+            Map<String, Model> refDefinitions = parseProperties(model, type.getDeclaredFields(), processedClasses);
             definitions.putAll(refDefinitions);
         }
+
         return definitions;
     }
 
-    private static Map<String, Model> parseProperties(ModelImpl model, Field[] fields) {
+    private static Map<String, Model> parseProperties(ModelImpl model, Field[] fields, Map<Field, Map<String, Model>> processedClasses) {
         Map<String, Model> refDefinitions = new HashMap<>();
 
         for (Field field : fields) {
@@ -51,12 +57,12 @@ public class DefinitionsFactory {
                     model.addProperty(field.getName(), property);
 
                     if (isRef(field.getType())) {
-                        Map<String, Model> definitions = create(field.getType());
+                        Map<String, Model> definitions = lookupDefinitions(processedClasses, field, field.getType());
                         refDefinitions.putAll(definitions);
                     } else if (field.getType().isArray() || Collection.class.isAssignableFrom(field.getType())) {
                         Class<?> childType = getCollectionType(field);
                         if (isRef(childType)) {
-                            Map<String, Model> definitions = create(childType);
+                            Map<String, Model> definitions = lookupDefinitions(processedClasses, field, childType);
                             refDefinitions.putAll(definitions);
                         }
                     }
@@ -64,6 +70,18 @@ public class DefinitionsFactory {
             }
         }
         return refDefinitions;
+    }
+
+    private static Map<String, Model> lookupDefinitions(Map<Field, Map<String, Model>> processedClasses, Field field, Class type) {
+      //ideally one should use computeIfAbsent. it fails due to recursive calls
+      Map<String, Model> definitions = processedClasses.get(field);
+      if (definitions == null) {
+        processedClasses.put(field, new HashMap<>());
+        definitions = create(type, processedClasses);
+        processedClasses.put(field, definitions);
+      }
+
+      return definitions;
     }
 
     private static boolean isViable(Field field) {
@@ -95,6 +113,8 @@ public class DefinitionsFactory {
             return new StringProperty();
         } else if (fieldClass.equals(UUID.class)) {
             return new UUIDProperty();
+        } else if (fieldClass.equals(Map.class)) {
+           return new MapProperty();
         } else if (fieldClass.isArray() || Collection.class.isAssignableFrom(fieldClass)) {
             ArrayProperty property = new ArrayProperty();
             // FIXME set actual items
