@@ -235,19 +235,23 @@ public class SparkSwagger {
     }
 
     private Info getInfo() {
-        Config infoConfig = Optional.ofNullable(config.getConfig("spark-swagger.info")).orElseThrow(() -> new IllegalArgumentException("'spark-swagger.info' configuration is required"));
+        if (!config.hasPath("spark-swagger.info")) {
+            throw new IllegalArgumentException("'spark-swagger.info' configuration is required");
+        }
+
+        Config infoConfig = config.getConfig("spark-swagger.info");
 
         if (options.getVersion() == null) {
             // Resolve version from config if not supplied programmatically
-            if (this.config.hasPath("spark-swagger.info.version")) {
-                options.setVersion(this.config.getString("spark-swagger.info.version"));
-            } else if (this.config.hasPath("spark-swagger.info.project.version")) {
-                options.setVersion(this.config.getString("spark-swagger.info.project.version"));
+            if (infoConfig.hasPath("version")) {
+                options.setVersion(infoConfig.getString("version"));
+            } else if (infoConfig.hasPath("project.version")) {
+                options.setVersion(infoConfig.getString("project.version"));
             }
         }
 
-        Config externalDocConf = this.config.getConfig("spark-swagger.info.externalDoc");
-        if (externalDocConf != null) {
+        if (infoConfig.hasPath("externalDoc")) {
+            Config externalDocConf = infoConfig.getConfig("externalDoc");
             ExternalDocs doc = ExternalDocs.newBuilder()
                     .withDescription(externalDocConf.getString("description"))
                     .withUrl(externalDocConf.getString("url"))
@@ -273,8 +277,9 @@ public class SparkSwagger {
             swagger.schemes(schemes);
         }
 
-        Config contactConfig = this.config.getConfig("spark-swagger.info.contact");
-        if (contactConfig != null) {
+        if (infoConfig.hasPath("contact")) {
+            Config contactConfig = infoConfig.getConfig("contact");
+
             Contact contact = new Contact();
             contact.name(contactConfig.getString("name"));
             contact.email(contactConfig.getString("email"));
@@ -282,14 +287,13 @@ public class SparkSwagger {
             info.setContact(contact);
         }
 
-        if (this.config.hasPath("spark-swagger.info.license")) {
-            Config licenseConfig = this.config.getConfig("spark-swagger.info.license");
-            if (licenseConfig != null) {
-                License license = new License();
-                license.name(licenseConfig.getString("name"));
-                license.url(licenseConfig.getString("url"));
-                info.setLicense(license);
-            }
+        if (infoConfig.hasPath("license")) {
+            Config licenseConfig = infoConfig.getConfig("license");
+
+            License license = new License();
+            license.name(licenseConfig.getString("name"));
+            license.url(licenseConfig.getString("url"));
+            info.setLicense(license);
         }
         return info;
     }
